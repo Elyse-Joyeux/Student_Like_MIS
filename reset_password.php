@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password - Student Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
     * {
@@ -64,18 +64,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
 
     :root {
         --surface: #ffffff;
-        --surface-soft: #f8fafc;
-        --text: #1f2937;
-        --muted: #64748b;
-        --border: #dbe4ee;
-        --primary: #1d4ed8;
-        --primary-dark: #1e3a8a;
-        --accent: #0f766e;
+        --surface-soft: #f7f5f2;
+        --text: #2b2e42;
+        --muted: #7c8193;
+        --border: #e7e2dd;
+        --primary: #ff6473;
+        --primary-dark: #e74f61;
+        --accent: #45d6a6;
     }
 
     body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Manrope', sans-serif;
+        background: linear-gradient(122deg, #f4f2f0 0 50%, #171b22 50% 100%);
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -89,14 +89,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: 8px;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+        box-shadow: 0 24px 70px rgba(17, 20, 29, 0.18);
         width: 100%;
         max-width: 480px;
         overflow: hidden;
     }
 
     .reset-header {
-        background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+        background: #171b22;
+        border-bottom: 4px solid var(--primary);
         color: white;
         padding: 30px 34px;
     }
@@ -156,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
         outline: none;
         background: white;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+        box-shadow: 0 0 0 3px rgba(255, 100, 115, 0.16);
     }
 
     button {
@@ -264,10 +265,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
         document.getElementById('confirm_password').addEventListener('input', function() {
             const msg = document.getElementById('match-msg');
             if (this.value === document.getElementById('password').value) {
-                msg.style.color = '#276749';
+                msg.style.color = '#1f7a55';
                 msg.textContent = '✓ Passwords match';
             } else {
-                msg.style.color = '#c53030';
+                msg.style.color = '#be2f3f';
                 msg.textContent = '✗ Passwords do not match';
             }
         });

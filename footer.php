@@ -15,13 +15,13 @@
     left: 0;
     right: 0;
     padding: 20px 30px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid #282f3b;
     text-align: center;
     color: #fff;
     font-size: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #171b22;
     z-index: 50;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -8px 24px rgba(17, 20, 29, 0.12);
     width: 100%;
 }
 

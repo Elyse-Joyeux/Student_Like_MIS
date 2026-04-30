@@ -41,15 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p>We received a request to reset your password. Click the button below to choose a new one.</p>
             <div style='text-align:center;margin:30px 0;'>
                 <a href='" . htmlspecialchars($reset_link) . "'
-                   style='background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:14px 32px;
+                   style='background:#171b22;color:#fff;padding:14px 32px;
                           border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;
                           display:inline-block;'>Reset My Password</a>
             </div>
             <p>Or copy and paste this link into your browser:</p>
             <p style='background:#f4f6fb;padding:12px;border-radius:8px;word-break:break-all;font-size:13px;'>
-                <a href='" . htmlspecialchars($reset_link) . "' style='color:#667eea;'>" . htmlspecialchars($reset_link) . "</a>
+                <a href='" . htmlspecialchars($reset_link) . "' style='color:#ff6473;'>" . htmlspecialchars($reset_link) . "</a>
             </p>
-            <p style='color:#e53e3e;font-size:13px;'><strong>⏰ This link expires in 1 hour.</strong></p>
+            <p style='color:#f05261;font-size:13px;'><strong>⏰ This link expires in 1 hour.</strong></p>
             <p>If you did not request a password reset, you can safely ignore this email — your password will not change.</p>
         ";
             $html = buildEmailHtml(
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password — Student Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
     * {
@@ -94,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Manrope', sans-serif;
+        background: linear-gradient(122deg, #f4f2f0 0 50%, #171b22 50% 100%);
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -106,31 +106,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     :root {
         --bg-primary: #ffffff;
-        --bg-soft: #f8fafc;
-        --text-primary: #1f2937;
-        --text-secondary: #64748b;
-        --border: #dbe4ee;
-        --primary: #1d4ed8;
-        --primary-dark: #1e3a8a;
-        --accent: #0f766e;
+        --bg-soft: #f7f5f2;
+        --text-primary: #2b2e42;
+        --text-secondary: #7c8193;
+        --border: #e7e2dd;
+        --primary: #ff6473;
+        --primary-dark: #e74f61;
+        --accent: #45d6a6;
     }
 
     body.dark {
         --bg-primary: #111827;
-        --bg-soft: #1f2937;
-        --text-primary: #f8fafc;
+        --bg-soft: #2b2e42;
+        --text-primary: #f7f5f2;
         --text-secondary: #cbd5e1;
-        --border: #374151;
-        --primary: #60a5fa;
-        --primary-dark: #3b82f6;
-        --accent: #2dd4bf;
+        --border: #343a47;
+        --primary: #ff7b88;
+        --primary-dark: #ff6473;
+        --accent: #45d6a6;
     }
 
     .container {
         background: var(--bg-primary);
         border: 1px solid var(--border);
         border-radius: 8px;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+        box-shadow: 0 24px 70px rgba(17, 20, 29, 0.18);
         width: 100%;
         max-width: 480px;
         overflow: hidden;
@@ -138,7 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     .logo {
-        background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+        background: #171b22;
+        border-bottom: 4px solid var(--primary);
         color: white;
         padding: 30px 34px;
         margin-bottom: 0;
@@ -211,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         outline: none;
         background: var(--bg-primary);
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+        box-shadow: 0 0 0 3px rgba(255, 100, 115, 0.16);
     }
 
     .btn {
@@ -240,20 +241,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     .alert-success {
         background: #f0fff4;
-        border: 1.5px solid #9ae6b4;
-        color: #276749;
+        border: 1.5px solid #a7e8ca;
+        color: #1f7a55;
     }
 
     .alert-error {
         background: #fff5f5;
-        border: 1.5px solid #fc8181;
-        color: #c53030;
+        border: 1.5px solid #ff9aa4;
+        color: #be2f3f;
     }
 
     .alert-warning {
         background: #fffff0;
         border: 1.5px solid #f6e05e;
-        color: #744210;
+        color: #8a5b11;
     }
 
     .link-box {
@@ -347,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p style="font-size:13px;margin-top:6px;">
                 An email has been sent to your address with a reset button.
                 <?php if (!empty($smtp_error)): ?>
-                <br><em style="color:#744210;">(SMTP issue — use the link below directly)</em>
+                <br><em style="color:#8a5b11;">(SMTP issue — use the link below directly)</em>
                 <?php endif; ?>
             </p>
             <div class="link-box">

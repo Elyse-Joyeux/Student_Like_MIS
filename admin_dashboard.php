@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Build branded HTML email
             $bodyHtml = "
                 <p>" . nl2br(htmlspecialchars($body)) . "</p>
-                <hr style='border:none;border-top:1px solid #e2e8f0;margin:24px 0;'>
+                <hr style='border:none;border-top:1px solid #e7e2dd;margin:24px 0;'>
                 <p style='font-size:13px;color:#718096;'>This message was sent to you directly by a school administrator via the Student Management System.</p>
             ";
             $html = buildEmailHtml(
@@ -201,7 +201,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Student Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -215,7 +215,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Manrope', sans-serif;
             background: var(--bg-secondary);
             color: var(--text-primary);
             transition: all 0.3s;
@@ -224,22 +224,28 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
 
         :root {
             --bg-primary: #ffffff;
-            --bg-secondary: #f5f7fb;
-            --text-primary: #1f2937;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
+            --bg-secondary: #f4f2f0;
+            --text-primary: #2b2e42;
+            --text-secondary: #7c8193;
+            --border: #e7e2dd;
             --card-bg: #ffffff;
-            --accent: #4f46e5;
+            --accent: #6978ff;
+            --brand: #ff6473;
+            --mint: #45d6a6;
+            --ink: #171b22;
         }
 
         body.dark {
-            --bg-primary: #1e2533;
-            --bg-secondary: #141820;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --border: #374151;
-            --card-bg: #252d3d;
-            --accent: #818cf8;
+            --bg-primary: #171b22;
+            --bg-secondary: #101319;
+            --text-primary: #e7e2dd;
+            --text-secondary: #aab1c0;
+            --border: #343a47;
+            --card-bg: #202631;
+            --accent: #8f9cff;
+            --brand: #ff7b88;
+            --mint: #45d6a6;
+            --ink: #101319;
         }
 
         .container {
@@ -249,7 +255,8 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
 
         .sidebar {
             width: 260px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #171b22;
+            border-right: 1px solid #282f3b;
             color: white;
             padding: 30px 20px 180px 20px;
             position: fixed;
@@ -260,15 +267,21 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         .sidebar h2 {
             font-size: 20px;
             margin-bottom: 30px;
-            text-align: center;
+            text-align: left;
+            letter-spacing: -0.02em;
+        }
+
+        .sidebar h2 i {
+            color: var(--brand);
+            margin-right: 8px;
         }
 
         .sidebar nav a {
             display: block;
             padding: 12px 15px;
-            color: rgba(255, 255, 255, 0.8);
+            color: #b8bfcc;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 8px;
             margin-bottom: 8px;
             transition: all 0.2s ease;
             font-size: 14px;
@@ -280,20 +293,20 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         }
 
         .sidebar nav a:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: #202631;
             color: white;
         }
 
         .sidebar nav a.active {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
+            background: #eef3ff;
+            color: #171b22;
             font-weight: 600;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: inset 4px 0 0 var(--brand);
         }
 
         .badge-pill {
             display: inline-block;
-            background: #e53e3e;
+            background: #f05261;
             color: white;
             border-radius: 20px;
             padding: 1px 8px;
@@ -321,7 +334,8 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             padding: 25px;
             border-radius: 8px;
             border: 1px solid var(--border);
-            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+            border-top: 4px solid var(--brand);
+            box-shadow: 0 16px 42px rgba(23, 27, 34, 0.07);
         }
 
         .stat-card h3 {
@@ -332,8 +346,13 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
 
         .stat-card .number {
             font-size: 32px;
-            font-weight: bold;
-            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        body.dark .stat-card .number {
+            color: #f7f5f2;
         }
 
         .card {
@@ -342,7 +361,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             padding: 25px;
             margin-bottom: 25px;
             border: 1px solid var(--border);
-            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+            box-shadow: 0 16px 42px rgba(23, 27, 34, 0.06);
             overflow-x: auto;
         }
 
@@ -350,7 +369,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             margin-bottom: 20px;
             font-size: 18px;
             color: var(--text-primary);
-            border-left: 4px solid var(--accent);
+            border-left: 4px solid var(--brand);
             padding-left: 14px;
         }
 
@@ -382,7 +401,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         }
 
         tbody tr:hover {
-            background: rgba(79, 70, 229, 0.04);
+            background: rgba(105, 120, 255, 0.07);
         }
 
         .btn {
@@ -401,27 +420,31 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         }
 
         .btn-primary {
-            background: var(--accent);
+            background: var(--ink);
             color: white;
         }
 
+        .btn-primary:hover {
+            background: var(--brand);
+        }
+
         .btn-success {
-            background: #48bb78;
+            background: #2fbf82;
             color: white;
         }
 
         .btn-danger {
-            background: #e53e3e;
+            background: #f05261;
             color: white;
         }
 
         .btn-warning {
-            background: #ed8936;
+            background: #d88b2f;
             color: white;
         }
 
         .btn-info {
-            background: #4299e1;
+            background: #5f8cff;
             color: white;
         }
 
@@ -453,15 +476,15 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             padding: 12px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
-            background: #c6f6d5;
-            color: #276749;
-            border: 1px solid #9ae6b4;
+            background: #dff8ed;
+            color: #1f7a55;
+            border: 1px solid #a7e8ca;
         }
 
         .alert-error {
-            background: #fed7d7;
-            color: #c53030;
-            border-color: #fc8181;
+            background: #ffe1e5;
+            color: #be2f3f;
+            border-color: #ff9aa4;
         }
 
         .modal {
@@ -494,24 +517,24 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         }
 
         .status-pending {
-            background: #fefcbf;
-            color: #744210;
+            background: #fff2bf;
+            color: #8a5b11;
             padding: 3px 10px;
             border-radius: 20px;
             font-size: 12px;
         }
 
         .status-approved {
-            background: #c6f6d5;
-            color: #276749;
+            background: #dff8ed;
+            color: #1f7a55;
             padding: 3px 10px;
             border-radius: 20px;
             font-size: 12px;
         }
 
         .status-rejected {
-            background: #fed7d7;
-            color: #c53030;
+            background: #ffe1e5;
+            color: #be2f3f;
             padding: 3px 10px;
             border-radius: 20px;
             font-size: 12px;
@@ -550,7 +573,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             position: fixed;
             top: 20px;
             left: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #171b22;
             border: none;
             color: white;
             width: 48px;
@@ -691,7 +714,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
                     </div>
                     <div class="stat-card">
                         <h3>Pending Appeals</h3>
-                        <div class="number" style="color:#ed8936;"><?php echo $pending_appeals; ?></div>
+                        <div class="number" style="color:#d88b2f;"><?php echo $pending_appeals; ?></div>
                     </div>
                     <div class="stat-card">
                         <h3>Report Cards</h3>
@@ -902,7 +925,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
                                     <tr>
                                         <td><?php echo htmlspecialchars($rc['full_name']); ?></td>
                                         <td><?php echo htmlspecialchars($rc['title']); ?></td>
-                                        <td><a href="<?php echo htmlspecialchars($rc['file_path']); ?>" target="_blank" style="color:#667eea;"><i class="fas fa-file"></i> <?php echo htmlspecialchars($rc['file_name']); ?></a></td>
+                                        <td><a href="<?php echo htmlspecialchars($rc['file_path']); ?>" target="_blank" style="color:#ff6473;"><i class="fas fa-file"></i> <?php echo htmlspecialchars($rc['file_name']); ?></a></td>
                                         <td style="font-size:13px;"><?php echo date('M j, Y', strtotime($rc['created_at'])); ?></td>
                                         <td>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this report card?')">
@@ -990,7 +1013,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     <div id="editUserModal" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-user-edit"></i> Edit Student</h3>
-            <p style="font-size:13px; color:#ed8936; margin-bottom:16px;"><i class="fas fa-info-circle"></i> You can only edit the student's <strong>full name</strong>. Email and username are owned by the student.</p>
+            <p style="font-size:13px; color:#d88b2f; margin-bottom:16px;"><i class="fas fa-info-circle"></i> You can only edit the student's <strong>full name</strong>. Email and username are owned by the student.</p>
             <form method="POST">
                 <input type="hidden" name="user_id" id="edit_user_id">
                 <div class="form-group">
@@ -1002,10 +1025,10 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
                     <input type="email" id="edit_email_display" class="readonly-field" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Full Name <span style="color:#e53e3e;">*</span></label>
+                    <label>Full Name <span style="color:#f05261;">*</span></label>
                     <input type="text" name="full_name" id="edit_full_name" required placeholder="Student's full name">
                 </div>
-                <div style="background:#fffbeb; border:1px solid #f6e05e; border-radius:8px; padding:10px 14px; font-size:13px; color:#744210; margin-bottom:16px;">
+                <div style="background:#fffbeb; border:1px solid #f6e05e; border-radius:8px; padding:10px 14px; font-size:13px; color:#8a5b11; margin-bottom:16px;">
                     <i class="fas fa-bell"></i> The student will receive an in-system notification about this name change.
                 </div>
                 <div style="display:flex; gap:10px;">

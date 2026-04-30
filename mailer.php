@@ -68,28 +68,28 @@ function buildEmailHtml(string $recipientName, string $heading, string $bodyHtml
 <!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f4f6fb;font-family:Inter,Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#f4f6fb;font-family:Manrope,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:40px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg,#667eea,#764ba2);padding:32px 40px;text-align:center;">
+          <td style="background:#171b22;padding:32px 40px;text-align:center;">
             <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700;">🎓 {$appName}</h1>
           </td>
         </tr>
         <!-- Body -->
         <tr>
           <td style="padding:36px 40px;">
-            <h2 style="color:#2d3748;margin:0 0 8px 0;font-size:20px;">{$heading}</h2>
-            <p style="color:#4a5568;font-size:15px;margin:0 0 20px 0;">Dear <strong>{$recipientName}</strong>,</p>
-            <div style="color:#4a5568;font-size:15px;line-height:1.7;">{$bodyHtml}</div>
+            <h2 style="color:#2b2e42;margin:0 0 8px 0;font-size:20px;">{$heading}</h2>
+            <p style="color:#5f6575;font-size:15px;margin:0 0 20px 0;">Dear <strong>{$recipientName}</strong>,</p>
+            <div style="color:#5f6575;font-size:15px;line-height:1.7;">{$bodyHtml}</div>
             {$footer}
           </td>
         </tr>
         <!-- Footer -->
         <tr>
-          <td style="background:#f7f9fc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+          <td style="background:#f7f9fc;padding:20px 40px;text-align:center;border-top:1px solid #e7e2dd;">
             <p style="color:#a0aec0;font-size:12px;margin:0;">&copy; {$year} {$appName}. All rights reserved.</p>
           </td>
         </tr>

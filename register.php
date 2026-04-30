@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Student Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
     * {
@@ -51,8 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Manrope', sans-serif;
+        background: linear-gradient(122deg, #f4f2f0 0 50%, #171b22 50% 100%);
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -63,39 +63,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     :root {
         --bg-primary: #ffffff;
-        --bg-secondary: #f8fafc;
-        --text-primary: #1f2937;
-        --text-secondary: #64748b;
-        --border: #dbe4ee;
-        --input-bg: #f8fafc;
-        --primary: #1d4ed8;
-        --primary-dark: #1e3a8a;
-        --accent: #0f766e;
+        --bg-secondary: #f7f5f2;
+        --text-primary: #2b2e42;
+        --text-secondary: #7c8193;
+        --border: #e7e2dd;
+        --input-bg: #f7f5f2;
+        --primary: #ff6473;
+        --primary-dark: #e74f61;
+        --accent: #45d6a6;
     }
 
     body.dark {
-        --bg-primary: #1a202c;
+        --bg-primary: #171b22;
         --text-primary: #f7fafc;
         --text-secondary: #cbd5e1;
-        --border: #4a5568;
-        --input-bg: #4a5568;
-        --primary: #60a5fa;
-        --primary-dark: #3b82f6;
-        --accent: #2dd4bf;
+        --border: #343a47;
+        --input-bg: #343a47;
+        --primary: #ff7b88;
+        --primary-dark: #ff6473;
+        --accent: #45d6a6;
     }
 
     .register-container {
         background: var(--bg-primary);
         border: 1px solid var(--border);
         border-radius: 8px;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+        box-shadow: 0 24px 70px rgba(17, 20, 29, 0.18);
         width: 100%;
         max-width: 500px;
         overflow: hidden;
     }
 
     .register-header {
-        background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+        background: #171b22;
+        border-bottom: 4px solid var(--primary);
         padding: 30px;
         text-align: center;
     }
@@ -136,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         outline: none;
         background: var(--bg-primary);
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+        box-shadow: 0 0 0 3px rgba(255, 100, 115, 0.16);
     }
 
     .pw-wrap {
@@ -177,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         border: none;
         border-radius: 8px;
         font-size: 16px;
-        font-weight: 600;
+        font-weight: 800;
         cursor: pointer;
         transition: background 0.2s, transform 0.2s;
     }
@@ -206,9 +207,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     .alert-error {
-        background: #fed7d7;
-        color: #c53030;
-        border: 1px solid #fc8181;
+        background: #ffe1e5;
+        color: #be2f3f;
+        border: 1px solid #ff9aa4;
     }
 
     .theme-toggle {
@@ -326,10 +327,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     document.getElementById('reg_confirm').addEventListener('input', function() {
         const msg = document.getElementById('reg-match-msg');
         if (this.value === document.getElementById('reg_password').value) {
-            msg.style.color = '#276749';
+            msg.style.color = '#1f7a55';
             msg.textContent = '✓ Passwords match';
         } else {
-            msg.style.color = '#c53030';
+            msg.style.color = '#be2f3f';
             msg.textContent = '✗ Passwords do not match';
         }
     });

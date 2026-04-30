@@ -87,7 +87,7 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Management - Student Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
     * {
@@ -97,9 +97,9 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
     }
 
     body {
-        font-family: 'Inter', sans-serif;
-        background: #f7f9fc;
-        color: #2d3748;
+        font-family: 'Manrope', sans-serif;
+        background: #f4f2f0;
+        color: #2b2e42;
     }
 
     .container {
@@ -117,7 +117,7 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
 
     .header h1 {
         font-size: 32px;
-        color: #2d3748;
+        color: #2b2e42;
     }
 
     .back-link {
@@ -126,15 +126,16 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
         gap: 8px;
         padding: 10px 16px;
         background: white;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #e7e2dd;
         border-radius: 8px;
-        color: #4299e1;
+        color: #171b22;
         text-decoration: none;
         transition: all 0.3s ease;
     }
 
     .back-link:hover {
-        background: #ebf8ff;
+        background: #fff0f2;
+        border-color: #ffb6be;
     }
 
     .content-grid {
@@ -146,23 +147,23 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
 
     .card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 16px 42px rgba(23, 27, 34, 0.06);
         padding: 30px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #e7e2dd;
     }
 
     .card h2 {
         font-size: 20px;
         margin-bottom: 24px;
-        color: #2d3748;
+        color: #2b2e42;
         display: flex;
         align-items: center;
         gap: 12px;
     }
 
     .card h2 i {
-        color: #667eea;
+        color: #ff6473;
         font-size: 24px;
     }
 
@@ -174,24 +175,24 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
-        color: #2d3748;
+        color: #2b2e42;
         font-size: 14px;
     }
 
     .form-group input {
         width: 100%;
         padding: 12px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #e7e2dd;
         border-radius: 8px;
         font-size: 14px;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Manrope', sans-serif;
         transition: border-color 0.3s ease;
     }
 
     .form-group input:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: #ff6473;
+        box-shadow: 0 0 0 3px rgba(255, 100, 115, 0.16);
     }
 
     .btn {
@@ -203,18 +204,18 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
         cursor: pointer;
         transition: all 0.3s ease;
         font-size: 14px;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Manrope', sans-serif;
     }
 
     .btn-primary {
-        background: #667eea;
+        background: #171b22;
         color: white;
     }
 
     .btn-primary:hover {
-        background: #5568d3;
+        background: #ff6473;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 100, 115, 0.25);
     }
 
     .btn-danger {
@@ -226,7 +227,7 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
     }
 
     .btn-danger:hover {
-        background: #e53e3e;
+        background: #f05261;
     }
 
     .alert {
@@ -239,15 +240,15 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
     }
 
     .alert-success {
-        background: #c6f6d5;
+        background: #dff8ed;
         color: #22543d;
-        border: 1px solid #9ae6b4;
+        border: 1px solid #a7e8ca;
     }
 
     .alert-error {
-        background: #fed7d7;
+        background: #ffe1e5;
         color: #742a2a;
-        border: 1px solid #fc8181;
+        border: 1px solid #ff9aa4;
     }
 
     .alert i {
@@ -260,25 +261,25 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
     }
 
     .admin-table thead {
-        background: #f7f9fc;
-        border-bottom: 2px solid #e2e8f0;
+        background: #f7f5f2;
+        border-bottom: 2px solid #e7e2dd;
     }
 
     .admin-table th {
         padding: 12px;
         text-align: left;
         font-weight: 600;
-        color: #4a5568;
+        color: #7c8193;
         font-size: 13px;
     }
 
     .admin-table td {
         padding: 12px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e7e2dd;
     }
 
     .admin-table tr:hover {
-        background: #f7f9fc;
+        background: #fff9f7;
     }
 
     .admin-badge {
@@ -286,15 +287,15 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
         align-items: center;
         gap: 6px;
         padding: 4px 8px;
-        background: #bee3f8;
-        color: #2c5282;
+        background: #eef3ff;
+        color: #3d5fb5;
         border-radius: 4px;
         font-size: 12px;
         font-weight: 600;
     }
 
     .current-badge {
-        background: #c6f6d5;
+        background: #dff8ed;
         color: #22543d;
     }
 
@@ -458,7 +459,7 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
         </div>
 
         <!-- Important Notes -->
-        <div class="card" style="background: #f0f4ff; border: 1px solid #bee3f8;">
+        <div class="card" style="background: #f0f4ff; border: 1px solid #cbd8ff;">
             <h2 style="color: #2c5282;"><i class="fas fa-info-circle"></i> Important Notes</h2>
             <ul style="margin-left: 20px; color: #2c5282; line-height: 1.8;">
                 <li><strong>Security:</strong> Only existing admins can create new admin accounts from this page.</li>
