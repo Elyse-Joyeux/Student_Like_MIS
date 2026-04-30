@@ -1,13 +1,5 @@
 <?php
 
-/**
- * Email Configuration & SMTP Handler
- * 
- * Author: Elyse Joyeux
- * Version: 1.0.0
- * © 2026 Elyse Joyeux. All rights reserved.
- */
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
