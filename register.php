@@ -275,5 +275,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (pw !== cp) { e.preventDefault(); alert('Passwords do not match.'); }
     });
 </script>
+<?php include 'footer.php'; ?>
 </body>
 </html>
