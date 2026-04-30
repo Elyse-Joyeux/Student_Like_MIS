@@ -1,6 +1,8 @@
 <?php
 
 require_once 'config.php';
+require_once 'mailer.php';
+require_once 'mailer.php';
 
 if (!isLoggedIn() || !isAdmin()) {
     redirect('index.php');
@@ -75,21 +77,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $student = mysqli_fetch_assoc(mysqli_query($conn, "SELECT email, full_name FROM users WHERE id=$student_id AND role='student'"));
         if ($student) {
-            $to      = $student['email'];
-            $from_domain = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $headers = "From: SMS Admin <no-reply@{$from_domain}>\r\n"
-                     . "Reply-To: no-reply@{$from_domain}\r\n"
-                     . "MIME-Version: 1.0\r\n"
-                     . "Content-Type: text/plain; charset=UTF-8\r\n"
-                     . "Content-Transfer-Encoding: 8bit\r\n"
-                     . "X-Mailer: PHP/" . phpversion();
-            $full_body = "Dear " . $student['full_name'] . ",\r\n\r\n"
-                       . $body . "\r\n\r\n"
-                       . "---\r\nThis message was sent via the Student Management System.";
-            $mail_sent = @mail($to, $subject, $full_body, $headers);
-            // Also create in-system notification regardless of mail delivery
-            addNotification($student_id, "📧 You have a message from the administrator: <strong>" . htmlspecialchars($subject) . "</strong> — " . htmlspecialchars(mb_substr($body, 0, 120)) . (mb_strlen($body) > 120 ? '...' : ''));
-            logAction($_SESSION['user_id'], 'Email Student', "Emailed student ID: $student_id — Subject: $subject — Mail sent: " . ($mail_sent ? 'yes' : 'no (check server mail config)'));
+            // Build branded HTML email
+            $bodyHtml = "
+                <p>" . nl2br(htmlspecialchars($body)) . "</p>
+                <hr style='border:none;border-top:1px solid #e2e8f0;margin:24px 0;'>
+                <p style='font-size:13px;color:#718096;'>This message was sent to you directly by a school administrator via the Student Management System.</p>
+            ";
+            $html = buildEmailHtml(
+                $student['full_name'],
+                htmlspecialchars($subject),
+                $bodyHtml
+            );
+
+            $mailResult = sendMail($student['email'], $subject, $html);
+
+            // Always create in-system notification so student sees it even if email is delayed
+            $preview = mb_substr($body, 0, 100) . (mb_strlen($body) > 100 ? '…' : '');
+            addNotification($student_id, "📧 <strong>Message from administrator:</strong> " . htmlspecialchars($subject) . " — " . htmlspecialchars($preview));
+
+            $logNote = $mailResult === true ? 'delivered' : 'SMTP error: ' . $mailResult;
+            logAction($_SESSION['user_id'], 'Email Student', "Student ID: $student_id — Subject: $subject — Email: $logNote");
             redirect('admin_dashboard.php?msg=Message+sent+to+' . urlencode($student['full_name']) . '&section=users');
         }
         redirect('admin_dashboard.php?error=Student+not+found&section=users');
@@ -161,18 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Mark admin notifications read
-if (isset($_GET['mark_admin_read'])) {
-    mysqli_query($conn, "UPDATE notifications SET is_read=1 WHERE user_id={$_SESSION['user_id']}");
-    redirect('admin_dashboard.php?section=notifications');
-}
-
 //  Statistics ─
 $total_students  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM users WHERE role='student'"))['c'];
 $total_results   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM results"))['c'];
 $pending_appeals = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM appeals WHERE status='pending'"))['c'];
 $total_cards     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM report_cards"))['c'];
-$admin_unread    = countUnreadNotifications($_SESSION['user_id']);
 
 $users         = mysqli_query($conn, "SELECT * FROM users WHERE role='student' ORDER BY created_at DESC");
 $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements a JOIN users u ON a.created_by = u.id ORDER BY a.created_at DESC LIMIT 5");
@@ -268,7 +268,6 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         .readonly-field { background: var(--bg-secondary) !important; color: var(--text-secondary) !important; cursor: not-allowed; }
         .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 48px; height: 48px; cursor: pointer; z-index: 100; font-size: 18px; color: var(--text-primary); box-shadow: 0 2px 12px rgba(0,0,0,0.15); transition: all 0.2s; }
         .theme-toggle:hover { transform: scale(1.1); }
-        .notif-item-admin:hover { background: rgba(102,126,234,0.07) !important; }
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); transition: transform 0.3s; } .sidebar.active { transform: translateX(0); } .main-content { margin-left: 0; } }
     </style>
 </head>
@@ -284,7 +283,6 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             <a href="#" onclick="showSection('report_cards')"><i class="fas fa-file-alt"></i> Report Cards</a>
             <a href="#" onclick="showSection('announcements')"><i class="fas fa-bullhorn"></i> Announcements</a>
             <a href="#" onclick="showSection('logs')"><i class="fas fa-history"></i> System Logs</a>
-            <a href="#" onclick="showSection('notifications')" id="notif-nav-link"><i class="fas fa-bell"></i> Notifications <?php if($admin_unread > 0): ?><span class="badge-pill" id="admin-notif-badge"><?php echo $admin_unread; ?></span><?php endif; ?></a>
         </nav>
         <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
             <button onclick="toggleTheme()" style="width:100%; padding:11px 15px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:10px; color:white; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:10px;">
@@ -430,14 +428,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
                             <td><span class="status-<?php echo $ap['status']; ?>"><?php echo ucfirst($ap['status']); ?></span></td>
                             <td>
                                 <?php if($ap['status'] === 'pending'): ?>
-                                <button class="btn btn-primary"
-                                    data-appeal-id="<?php echo $ap['id']; ?>"
-                                    data-student="<?php echo htmlspecialchars($ap['full_name'], ENT_QUOTES); ?>"
-                                    data-subject="<?php echo htmlspecialchars($ap['subject'], ENT_QUOTES); ?>"
-                                    data-marks="<?php echo $ap['marks']; ?>"
-                                    data-result-id="<?php echo $ap['result_id']; ?>"
-                                    data-reason="<?php echo htmlspecialchars($ap['reason'], ENT_QUOTES); ?>"
-                                    onclick="openResolveModalFromBtn(this)">
+                                <button class="btn btn-primary" onclick="openResolveModal(<?php echo $ap['id']; ?>, '<?php echo addslashes($ap['full_name']); ?>', '<?php echo addslashes($ap['subject']); ?>', <?php echo $ap['marks']; ?>, <?php echo $ap['result_id']; ?>, '<?php echo addslashes($ap['reason']); ?>')">
                                     <i class="fas fa-gavel"></i> Resolve
                                 </button>
                                 <?php else: ?>
@@ -534,30 +525,10 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
                 </table>
             </div>
         </div>
-
-        <!--  Notifications ─ -->
-        <div id="notifications-section" style="display:none;">
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3 style="margin-bottom:0;">Notifications</h3>
-                    <a href="?mark_admin_read=1" class="btn btn-primary" style="font-size:13px; padding:7px 14px;"><i class="fas fa-check-double"></i> Mark All Read</a>
-                </div>
-                <?php
-                $admin_notifs = mysqli_query($conn, "SELECT * FROM notifications WHERE user_id={$_SESSION['user_id']} ORDER BY created_at DESC LIMIT 50");
-                if(mysqli_num_rows($admin_notifs) > 0):
-                    while($notif = mysqli_fetch_assoc($admin_notifs)): ?>
-                <div class="notif-item-admin <?php echo $notif['is_read'] ? '' : 'unread'; ?>" style="padding:14px 16px; border-bottom:1px solid var(--border); cursor:pointer; border-radius:8px; margin-bottom:4px; background:<?php echo $notif['is_read'] ? 'transparent' : 'rgba(66,153,225,0.08)'; ?>; border-left:<?php echo $notif['is_read'] ? 'none' : '3px solid #4299e1'; ?>;"
-                    onclick="openNotifDetail(<?php echo htmlspecialchars(json_encode(['id'=>$notif['id'],'message'=>$notif['message'],'time'=>date('F j, Y g:i A', strtotime($notif['created_at'])),'read'=>(bool)$notif['is_read']]), ENT_QUOTES); ?>)">
-                    <div style="font-size:14px;"><?php echo $notif['message']; ?></div>
-                    <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;"><i class="fas fa-clock"></i> <?php echo date('M j, Y g:i A', strtotime($notif['created_at'])); ?></div>
-                </div>
-                <?php endwhile; else: ?>
-                <p style="color:var(--text-secondary); text-align:center; padding:30px;">No notifications yet.</p>
-                <?php endif; ?>
-            </div>
-        </div>
     </div>
-</div>  -->
+</div>
+
+<!--  Modals  -->
 
 <!-- Add User -->
 <div id="addUserModal" class="modal">
@@ -611,7 +582,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
 <div id="emailModal" class="modal">
     <div class="modal-content">
         <h3><i class="fas fa-envelope"></i> Send Message to Student</h3>
-        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">Sending email to <strong id="email_to_name"></strong> at <strong id="email_to_addr"></strong>. An in-system notification will also be created so the student sees the message even if email delivery is delayed.</p>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">This will send an email to <strong id="email_to_name"></strong> at <strong id="email_to_addr"></strong> and also create an in-system notification.</p>
         <form method="POST">
             <input type="hidden" name="student_id" id="email_student_id">
             <div class="form-group"><label>Subject</label><input type="text" name="email_subject" required placeholder="e.g. Regarding your attendance"></div>
@@ -661,25 +632,10 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     </div>
 </div>
 
-<!-- Notification Detail Modal -->
-<div id="notifDetailModal" class="modal">
-    <div class="modal-content" style="max-width:600px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 style="margin:0;"><i class="fas fa-bell" style="color:#667eea; margin-right:10px;"></i> Notification Details</h3>
-            <button onclick="closeModal('notifDetailModal')" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-secondary);">&times;</button>
-        </div>
-        <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; margin-bottom:16px; font-size:15px; line-height:1.7; color:var(--text-primary);" id="notif-detail-message"></div>
-        <div style="font-size:13px; color:var(--text-secondary);"><i class="fas fa-clock" style="margin-right:6px;"></i><span id="notif-detail-time"></span></div>
-        <div style="margin-top:20px; text-align:right;">
-            <button onclick="closeModal('notifDetailModal')" class="btn btn-primary">Close</button>
-        </div>
-    </div>
-</div>
-
 <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIconBtn"></i></button>
 
 <script>
-    const SECTIONS = ['dashboard','users','results','appeals','report_cards','announcements','logs','notifications'];
+    const SECTIONS = ['dashboard','users','results','appeals','report_cards','announcements','logs'];
 
     function showSection(section) {
         SECTIONS.forEach(s => {
@@ -692,13 +648,6 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         const link = document.querySelector(`.sidebar nav a[onclick="showSection('${section}')"]`);
         if (link) link.classList.add('active');
         localStorage.setItem('adminSection', section);
-
-        // Auto-mark notifications as read when the section is opened
-        if (section === 'notifications') {
-            const badge = document.getElementById('admin-notif-badge');
-            if (badge) badge.style.display = 'none';
-            fetch('?mark_admin_read=1');
-        }
     }
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -717,17 +666,6 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         document.getElementById('email_to_name').textContent = name;
         document.getElementById('email_to_addr').textContent = email;
         openModal('emailModal');
-    }
-
-    function openResolveModalFromBtn(btn) {
-        openResolveModal(
-            btn.dataset.appealId,
-            btn.dataset.student,
-            btn.dataset.subject,
-            btn.dataset.marks,
-            btn.dataset.resultId,
-            btn.dataset.reason
-        );
     }
 
     function openResolveModal(id, student, subject, marks, resultId, reason) {
@@ -770,12 +708,6 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         localStorage.setItem('theme', theme);
         applyTheme(theme);
         fetch('save_theme.php?theme=' + theme);
-    }
-
-    function openNotifDetail(notif) {
-        document.getElementById('notif-detail-message').innerHTML = notif.message;
-        document.getElementById('notif-detail-time').textContent = notif.time;
-        openModal('notifDetailModal');
     }
 
     window.onclick = e => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
