@@ -156,7 +156,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         .sidebar nav a:hover { background: rgba(255,255,255,0.15); color: white; }
         .sidebar nav a.active { background: rgba(255,255,255,0.25); color: white; font-weight: 600; }
         .badge-pill { display: inline-block; background: #e53e3e; color: white; border-radius: 20px; padding: 1px 8px; font-size: 11px; margin-left: 6px; }
-        .main-content { flex: 1; margin-left: 260px; padding: 30px; }
+        .main-content { flex: 1; margin-left: 260px; padding: 30px; padding-bottom: 140px; }
         .card { background: var(--card-bg); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .card h3 { margin-bottom: 20px; font-size: 18px; border-left: 4px solid #667eea; padding-left: 15px; color: var(--text-primary); }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }

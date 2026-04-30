@@ -234,7 +234,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             display: inline-block; background: #e53e3e; color: white;
             border-radius: 20px; padding: 1px 8px; font-size: 11px; margin-left: 6px;
         }
-        .main-content { flex: 1; margin-left: 260px; padding: 30px; }
+        .main-content { flex: 1; margin-left: 260px; padding: 30px; padding-bottom: 140px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .stat-card h3 { font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
