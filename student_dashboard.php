@@ -19,19 +19,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_settings'])) {
     redirect('student_dashboard.php?msg=Settings+updated&section=settings');
 }
 
-// Update profile (student can update their own name & email — NOT username)
+// Update profile (student can update their own name, email & username)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     $full_name = mysqli_real_escape_string($conn, trim($_POST['full_name']));
     $email     = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $username  = mysqli_real_escape_string($conn, trim($_POST['username']));
 
-    // Check email not taken by someone else
-    $dup = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM users WHERE email='$email' AND id != $user_id"));
-    if ($dup) {
-        $error = "That email is already used by another account.";
+    if (empty($username)) {
+        $error = "Username cannot be empty.";
     } else {
-        mysqli_query($conn, "UPDATE users SET full_name='$full_name', email='$email' WHERE id=$user_id");
-        $_SESSION['full_name'] = $full_name;
-        redirect('student_dashboard.php?msg=Profile+updated&section=profile');
+        // Check email not taken by someone else
+        $dup_email = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM users WHERE email='$email' AND id != $user_id"));
+        // Check username not taken by someone else
+        $dup_user  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM users WHERE username='$username' AND id != $user_id"));
+        if ($dup_email) {
+            $error = "That email is already used by another account.";
+        } elseif ($dup_user) {
+            $error = "That username is already taken. Please choose another.";
+        } else {
+            mysqli_query($conn, "UPDATE users SET full_name='$full_name', email='$email', username='$username' WHERE id=$user_id");
+            $_SESSION['full_name'] = $full_name;
+            $_SESSION['username']  = $username;
+            redirect('student_dashboard.php?msg=Profile+updated&section=profile');
+        }
     }
 }
 
@@ -179,6 +189,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         .info-notice { background: #ebf4ff; border: 1px solid #bee3f8; color: #2b6cb0; border-radius: 10px; padding: 12px 16px; font-size: 13px; margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; }
         body.dark .info-notice { background: #1a2a3a; border-color: #2b4c6f; color: #90cdf4; }
         .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .notif-item:hover { background: rgba(102,126,234,0.06); }
         .notif-item.unread { background: #ebf8ff; border-left: 3px solid #4299e1; }
         body.dark .notif-item.unread { background: #1a2d3d; }
         .notif-time { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
@@ -200,7 +211,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             <a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="showSection('results')"><i class="fas fa-chart-line"></i> My Results</a>
             <a href="#" onclick="showSection('report_cards')"><i class="fas fa-file-alt"></i> Report Cards</a>
-            <a href="#" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications <?php if($unread_count > 0): ?><span class="badge-pill"><?php echo $unread_count; ?></span><?php endif; ?></a>
+            <a href="#" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications <?php if($unread_count > 0): ?><span class="badge-pill" id="notif-badge"><?php echo $unread_count; ?></span><?php endif; ?></a>
             <a href="#" onclick="showSection('announcements')"><i class="fas fa-bullhorn"></i> Announcements</a>
             <a href="#" onclick="showSection('profile')"><i class="fas fa-user"></i> My Profile</a>
             <a href="#" onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</a>
@@ -391,7 +402,9 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
                 $notifications = mysqli_query($conn, "SELECT * FROM notifications WHERE user_id=$user_id ORDER BY created_at DESC LIMIT 30");
                 if(mysqli_num_rows($notifications) > 0):
                     while($notif = mysqli_fetch_assoc($notifications)): ?>
-                <div class="notif-item <?php echo $notif['is_read'] ? '' : 'unread'; ?>">
+                <div class="notif-item <?php echo $notif['is_read'] ? '' : 'unread'; ?>"
+                    style="cursor:pointer; border-radius:8px; transition:background 0.2s;"
+                    onclick="openNotifDetail(<?php echo htmlspecialchars(json_encode(['id'=>$notif['id'],'message'=>$notif['message'],'time'=>date('F j, Y g:i A', strtotime($notif['created_at']))]), ENT_QUOTES); ?>)">
                     <div><?php echo $notif['message']; ?></div>
                     <div class="notif-time"><i class="fas fa-clock"></i> <?php echo date('M j, Y g:i A', strtotime($notif['created_at'])); ?></div>
                 </div>
@@ -441,11 +454,11 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
                         <input type="email" name="email" value="<?php echo htmlspecialchars($user_info['email']); ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>Username (cannot be changed)</label>
-                        <input type="text" value="<?php echo htmlspecialchars($user_info['username']); ?>" disabled style="background:var(--bg-secondary); color:var(--text-secondary); cursor:not-allowed;">
+                        <label>Username <span style="color:#e53e3e;">*</span></label>
+                        <input type="text" name="username" value="<?php echo htmlspecialchars($user_info['username']); ?>" required placeholder="Enter username">
                         <div class="info-notice" style="margin-top:8px;">
                             <i class="fas fa-info-circle" style="flex-shrink:0;"></i>
-                            <span>Your username cannot be changed. If it was changed by your institution, you can still log in using your email address. Contact your school administrator for clarification.</span>
+                            <span>You can update your username. Your new username must be unique across the system.</span>
                         </div>
                     </div>
                     <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
@@ -553,6 +566,21 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     </div>
 </div>
 
+<!-- Notification Detail Modal -->
+<div id="notifDetailModal" class="modal">
+    <div class="modal-content" style="max-width:600px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0;"><i class="fas fa-bell" style="color:#667eea; margin-right:10px;"></i> Notification</h3>
+            <button onclick="closeModal('notifDetailModal')" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-secondary);">&times;</button>
+        </div>
+        <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; margin-bottom:16px; font-size:15px; line-height:1.8; color:var(--text-primary);" id="notif-detail-message"></div>
+        <div style="font-size:13px; color:var(--text-secondary); padding-top:8px; border-top:1px solid var(--border);"><i class="fas fa-clock" style="margin-right:6px;"></i><span id="notif-detail-time"></span></div>
+        <div style="margin-top:20px; text-align:right;">
+            <button onclick="closeModal('notifDetailModal')" class="btn btn-primary">Close</button>
+        </div>
+    </div>
+</div>
+
 <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIconBtn"></i></button>
 
 <script>
@@ -569,6 +597,18 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         const link = document.querySelector(`.sidebar nav a[onclick="showSection('${section}')"]`);
         if (link) link.classList.add('active');
         localStorage.setItem('studentSection', section);
+
+        // Auto-mark notifications as read when section opened
+        if (section === 'notifications') {
+            const badge = document.getElementById('notif-badge');
+            if (badge) badge.style.display = 'none';
+            // Mark unread items visually as read
+            document.querySelectorAll('.notif-item.unread').forEach(el => {
+                el.classList.remove('unread');
+                el.style.borderLeft = 'none';
+            });
+            fetch('student_dashboard.php?mark_read=1');
+        }
     }
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -633,6 +673,12 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         const saved = '<?php echo $settings["theme"] ?? "light"; ?>';
         const notice = document.getElementById('themeNotice');
         if (notice) notice.style.display = (select.value !== saved) ? 'flex' : 'none';
+    }
+
+    function openNotifDetail(notif) {
+        document.getElementById('notif-detail-message').innerHTML = notif.message;
+        document.getElementById('notif-detail-time').textContent = notif.time;
+        openModal('notifDetailModal');
     }
 
     window.onclick = e => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
