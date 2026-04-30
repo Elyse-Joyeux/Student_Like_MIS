@@ -43,24 +43,17 @@ if (isLoggedIn()) {
         padding-bottom: 140px;
     }
 
-    .login-container {
-        background: var(--bg-primary);
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        width: 100%;
-        max-width: 450px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
     :root {
         --bg-primary: #ffffff;
-        --bg-secondary: #f7f9fc;
-        --text-primary: #2d3748;
-        --text-secondary: #718096;
-        --border: #e2e8f0;
+        --bg-secondary: #f8fafc;
+        --text-primary: #1f2937;
+        --text-secondary: #64748b;
+        --border: #dbe4ee;
         --card-bg: #ffffff;
-        --input-bg: #ffffff;
+        --input-bg: #f8fafc;
+        --primary: #1d4ed8;
+        --primary-dark: #1e3a8a;
+        --accent: #0f766e;
     }
 
     body.dark {
@@ -71,10 +64,24 @@ if (isLoggedIn()) {
         --border: #4a5568;
         --card-bg: #2d3748;
         --input-bg: #4a5568;
+        --primary: #60a5fa;
+        --primary-dark: #3b82f6;
+        --accent: #2dd4bf;
+    }
+
+    .login-container {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+        width: 100%;
+        max-width: 450px;
+        overflow: hidden;
+        transition: all 0.3s ease;
     }
 
     .login-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent));
         padding: 40px;
         text-align: center;
     }
@@ -108,9 +115,9 @@ if (isLoggedIn()) {
 
     .form-group input {
         width: 100%;
-        padding: 12px 16px;
+        padding: 13px 16px;
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: 8px;
         font-size: 14px;
         background: var(--input-bg);
         color: var(--text-primary);
@@ -119,17 +126,18 @@ if (isLoggedIn()) {
 
     .form-group input:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background: var(--bg-primary);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
     }
 
     .btn-login {
         width: 100%;
         padding: 12px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary);
         color: white;
         border: none;
-        border-radius: 10px;
+        border-radius: 8px;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
@@ -137,6 +145,7 @@ if (isLoggedIn()) {
     }
 
     .btn-login:hover {
+        background: var(--primary-dark);
         transform: translateY(-2px);
     }
 
@@ -148,14 +157,15 @@ if (isLoggedIn()) {
 
     .register-link a,
     .forgot-link a {
-        color: #667eea;
+        color: var(--primary);
         text-decoration: none;
         font-size: 14px;
+        font-weight: 600;
     }
 
     .alert {
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 8px;
         margin-bottom: 20px;
         font-size: 14px;
     }
@@ -177,8 +187,8 @@ if (isLoggedIn()) {
         top: 20px;
         right: 20px;
         background: var(--card-bg);
-        border: none;
-        border-radius: 50%;
+        border: 1px solid var(--border);
+        border-radius: 8px;
         width: 45px;
         height: 45px;
         cursor: pointer;
@@ -207,7 +217,24 @@ if (isLoggedIn()) {
     }
 
     .pw-eye:hover {
-        color: #667eea;
+        color: var(--primary);
+    }
+
+    @media (max-width: 520px) {
+        body {
+            align-items: flex-start;
+            padding: 16px;
+            padding-bottom: 150px;
+        }
+
+        .login-header,
+        .login-form {
+            padding: 28px 24px;
+        }
+
+        .login-header h1 {
+            font-size: 24px;
+        }
     }
     </style>
 </head>

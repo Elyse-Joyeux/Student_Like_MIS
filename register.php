@@ -63,29 +63,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     :root {
         --bg-primary: #ffffff;
-        --text-primary: #2d3748;
-        --border: #e2e8f0;
-        --input-bg: #ffffff;
+        --bg-secondary: #f8fafc;
+        --text-primary: #1f2937;
+        --text-secondary: #64748b;
+        --border: #dbe4ee;
+        --input-bg: #f8fafc;
+        --primary: #1d4ed8;
+        --primary-dark: #1e3a8a;
+        --accent: #0f766e;
     }
 
     body.dark {
         --bg-primary: #1a202c;
         --text-primary: #f7fafc;
+        --text-secondary: #cbd5e1;
         --border: #4a5568;
         --input-bg: #4a5568;
+        --primary: #60a5fa;
+        --primary-dark: #3b82f6;
+        --accent: #2dd4bf;
     }
 
     .register-container {
         background: var(--bg-primary);
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
         width: 100%;
         max-width: 500px;
         overflow: hidden;
     }
 
     .register-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--primary-dark), var(--accent));
         padding: 30px;
         text-align: center;
     }
@@ -113,12 +123,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     .form-group input {
         width: 100%;
-        padding: 12px 16px;
+        padding: 13px 16px;
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: 8px;
         font-size: 14px;
         background: var(--input-bg);
         color: var(--text-primary);
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        background: var(--bg-primary);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
     }
 
     .pw-wrap {
@@ -141,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     .pw-eye:hover {
-        color: #667eea;
+        color: var(--primary);
     }
 
     .pw-match-msg {
@@ -154,13 +172,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     .btn-register {
         width: 100%;
         padding: 12px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary);
         color: white;
         border: none;
-        border-radius: 10px;
+        border-radius: 8px;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-register:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
     }
 
     .login-link {
@@ -169,13 +193,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     .login-link a {
-        color: #667eea;
+        color: var(--primary);
         text-decoration: none;
+        font-weight: 600;
     }
 
     .alert {
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 8px;
         margin-bottom: 20px;
         font-size: 14px;
     }
@@ -183,19 +208,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     .alert-error {
         background: #fed7d7;
         color: #c53030;
+        border: 1px solid #fc8181;
     }
 
     .theme-toggle {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: white;
-        border: none;
-        border-radius: 50%;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
         width: 45px;
         height: 45px;
         cursor: pointer;
         font-size: 20px;
+        color: var(--text-primary);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    }
+
+    @media (max-width: 540px) {
+        body {
+            align-items: flex-start;
+            padding: 16px;
+            padding-bottom: 150px;
+        }
+
+        .register-header,
+        .register-form {
+            padding: 28px 24px;
+        }
     }
     </style>
 </head>
