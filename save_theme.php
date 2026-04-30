@@ -9,3 +9,4 @@ if (isLoggedIn() && isset($_GET['theme'])) {
     mysqli_stmt_bind_param($stmt, "si", $theme, $user_id);
     mysqli_stmt_execute($stmt);
 }
+?>
