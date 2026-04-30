@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
         .alert-success { background: #c6f6d5; color: #276749; }
     </style>
 </head>
-<body>
+<body class="auth-page">
 <div class="reset-container">
     <h2>Reset Password</h2>
     <?php if($error): ?>
