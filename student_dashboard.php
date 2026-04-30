@@ -694,5 +694,6 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     applyTheme(localStorage.getItem('theme') || '<?php echo $settings["theme"] ?? "light"; ?>');
     showSection(localStorage.getItem('studentSection') || '<?php echo $restore_section; ?>');
 </script>
+<?php include 'footer.php'; ?>
 </body>
 </html>
