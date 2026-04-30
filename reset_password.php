@@ -16,14 +16,22 @@ if (!$user && $_SERVER['REQUEST_METHOD'] != 'POST') {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
     $token = $_POST['token'];
-    $new_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    
-    $query = mysqli_query($conn, "SELECT id FROM users WHERE reset_token = '$token' AND reset_expires > NOW()");
-    if ($user = mysqli_fetch_assoc($query)) {
-        mysqli_query($conn, "UPDATE users SET password = '$new_password', reset_token = NULL, reset_expires = NULL WHERE id = {$user['id']}");
-        $success = "Password reset successful! <a href='index.php'>Login here</a>";
+    $new_password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    if (strlen($new_password) < 6) {
+        $error = "Password must be at least 6 characters long.";
+    } elseif ($new_password !== $confirm_password) {
+        $error = "Passwords do not match. Please try again.";
     } else {
-        $error = "Invalid or expired reset link";
+        $new_hashed = password_hash($new_password, PASSWORD_DEFAULT);
+        $query = mysqli_query($conn, "SELECT id FROM users WHERE reset_token = '$token' AND reset_expires > NOW()");
+        if ($user = mysqli_fetch_assoc($query)) {
+            mysqli_query($conn, "UPDATE users SET password = '$new_hashed', reset_token = NULL, reset_expires = NULL WHERE id = {$user['id']}");
+            $success = "Password reset successful! <a href='index.php'>Login here</a>";
+        } else {
+            $error = "Invalid or expired reset link. Please request a new one.";
+        }
     }
 }
 ?>
@@ -68,16 +76,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
         <div class="alert alert-success"><?php echo $success; ?></div>
     <?php endif; ?>
     <?php if(!$error && !$success): ?>
-        <form method="POST">
+        <form method="POST" onsubmit="return validatePasswords()">
             <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
             <div class="form-group">
-                <input type="password" name="password" placeholder="New Password" required>
+                <label>New Password</label>
+                <input type="password" name="password" id="password" placeholder="At least 6 characters" required>
             </div>
             <div class="form-group">
-                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" placeholder="Repeat your password" required>
+                <small id="match-msg" style="font-size: 12px; margin-top: 4px; display: block;"></small>
             </div>
             <button type="submit">Reset Password</button>
         </form>
+        <script>
+            document.getElementById('confirm_password').addEventListener('input', function() {
+                const msg = document.getElementById('match-msg');
+                if (this.value === document.getElementById('password').value) {
+                    msg.style.color = '#276749'; msg.textContent = '✓ Passwords match';
+                } else {
+                    msg.style.color = '#c53030'; msg.textContent = '✗ Passwords do not match';
+                }
+            });
+            function validatePasswords() {
+                const p = document.getElementById('password').value;
+                const c = document.getElementById('confirm_password').value;
+                if (p.length < 6) { alert('Password must be at least 6 characters.'); return false; }
+                if (p !== c) { alert('Passwords do not match.'); return false; }
+                return true;
+            }
+        </script>
     <?php endif; ?>
 </div>
 </body>
