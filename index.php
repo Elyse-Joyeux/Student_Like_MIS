@@ -176,6 +176,13 @@ if (isLoggedIn()) {
             color: var(--text-primary);
             font-size: 20px;
         }
+        .pw-wrap { position: relative; }
+        .pw-wrap input { padding-right: 44px; }
+        .pw-eye {
+            position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; color: #a0aec0; font-size: 15px; user-select: none;
+        }
+        .pw-eye:hover { color: #667eea; }
     </style>
 </head>
 <body>
@@ -203,7 +210,10 @@ if (isLoggedIn()) {
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" name="password" required placeholder="Enter password">
+                <div class="pw-wrap">
+                    <input type="password" name="password" id="login_password" required placeholder="Enter password">
+                    <span class="pw-eye" onclick="toggleLoginPw()"><i class="fas fa-eye" id="login_eye_icon"></i></span>
+                </div>
             </div>
             <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login</button>
         </form>
@@ -217,6 +227,18 @@ if (isLoggedIn()) {
 </div>
 
 <script>
+    function toggleLoginPw() {
+        const input = document.getElementById('login_password');
+        const icon = document.getElementById('login_eye_icon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
     function toggleTheme() {
         document.body.classList.toggle('dark');
         const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
