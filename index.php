@@ -269,5 +269,6 @@ if (isLoggedIn()) {
         icon.classList.add('fa-sun');
     }
 </script>
+<?php include 'footer.php'; ?>
 </body>
 </html>
