@@ -123,15 +123,12 @@ $create_report_cards = "CREATE TABLE IF NOT EXISTS report_cards (
 )";
 mysqli_query($conn, $create_report_cards);
 
-// Create default admin if not exists
-$check_admin = mysqli_query($conn, "SELECT id FROM users WHERE username = 'admin'");
-if (mysqli_num_rows($check_admin) == 0) {
-    // used my own password, in your code use yours!
-    $admin_pass = password_hash('admin@elyjoyx$', PASSWORD_DEFAULT);
-    mysqli_query($conn, "INSERT INTO users (username, email, password, full_name, role) VALUES ('admin', 'elysejoyeux590@gmail.com', '$admin_pass', 'System Administrator', 'admin')");
-    $admin_id = mysqli_insert_id($conn);
-    mysqli_query($conn, "INSERT INTO user_settings (user_id, theme) VALUES ($admin_id, 'light')");
-}
+/*
+ * ADMIN ACCOUNT SETUP:
+ * For security, no default admin account is created.
+ * First admin must be created through admin_setup.php
+ * After first admin is created, that page becomes inaccessible.
+ */
 
 // Helper functions
 function logAction($user_id, $action, $details) {
@@ -161,6 +158,12 @@ function isLoggedIn() {
 
 function isAdmin() {
     return isset($_SESSION['role']) && $_SESSION['role'] == 'admin';
+}
+
+function adminExists() {
+    global $conn;
+    $result = mysqli_query($conn, "SELECT id FROM users WHERE role='admin' LIMIT 1");
+    return mysqli_num_rows($result) > 0;
 }
 
 function redirect($url) {
