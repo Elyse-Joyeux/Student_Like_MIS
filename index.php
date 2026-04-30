@@ -3,6 +3,11 @@
 
 require_once 'config.php';
 
+// If no admin exists, redirect to admin setup
+if (!adminExists()) {
+    redirect('admin_setup.php');
+}
+
 if (isLoggedIn()) {
     if (isAdmin()) {
         redirect('admin_dashboard.php');
@@ -34,6 +39,7 @@ if (isLoggedIn()) {
             align-items: center;
             justify-content: center;
             padding: 20px;
+            padding-bottom: 140px;
         }
 
         .login-container {
