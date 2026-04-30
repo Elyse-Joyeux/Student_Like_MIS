@@ -195,5 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Theme
     if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
 </script>
+<?php include 'footer.php'; ?>
 </body>
 </html>
