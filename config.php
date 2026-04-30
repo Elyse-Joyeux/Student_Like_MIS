@@ -1,13 +1,5 @@
 <?php
 
-/**
- * Database Configuration & Setup
- * 
- * Author: Elyse Joyeux
- * Version: 1.0.0
- * © 2026 Elyse Joyeux. All rights reserved.
- */
-
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Load environment variables from .env file
