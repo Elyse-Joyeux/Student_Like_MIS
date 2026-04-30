@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; padding-bottom: 140px;
         }
         :root { --bg-primary: #ffffff; --text-primary: #2d3748; --border: #e2e8f0; }
         body.dark { --bg-primary: #1a202c; --text-primary: #f7fafc; --border: #4a5568; }
