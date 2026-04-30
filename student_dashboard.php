@@ -235,7 +235,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
-        <!-- ── Dashboard ───────────────────────────────────────── -->
+        <!--  Dashboard  -->
         <div id="dashboard-section" style="display:none;">
             <h1 style="margin-bottom:25px;">Welcome, <?php echo htmlspecialchars($_SESSION['full_name']); ?>!</h1>
 
@@ -288,7 +288,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Results + Appeals ────────────────────────────────── -->
+        <!--  Results + Appeals  -->
         <div id="results-section" style="display:none;">
             <div class="card">
                 <h3>All My Results</h3>
@@ -355,7 +355,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Report Cards ─────────────────────────────────────── -->
+        <!--  Report Cards ─ -->
         <div id="report_cards-section" style="display:none;">
             <div class="card">
                 <h3>My Report Cards</h3>
@@ -389,7 +389,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Notifications ─────────────────────────────────────── -->
+        <!--  Notifications ─ -->
         <div id="notifications-section" style="display:none;">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -414,7 +414,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Announcements ─────────────────────────────────────── -->
+        <!--  Announcements ─ -->
         <div id="announcements-section" style="display:none;">
             <div class="card">
                 <h3>School Announcements</h3>
@@ -430,7 +430,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Profile ───────────────────────────────────────────── -->
+        <!--  Profile  -->
         <div id="profile-section" style="display:none;">
             <div class="card">
                 <h3>My Profile</h3>
@@ -495,7 +495,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Settings ──────────────────────────────────────────── -->
+        <!--  Settings ─ -->
         <div id="settings-section" style="display:none;">
             <div class="card">
                 <h3>Application Settings</h3>
@@ -519,7 +519,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Logs ──────────────────────────────────────────────── -->
+        <!--  Logs ─ -->
         <div id="logs-section" style="display:none;">
             <div class="card">
                 <h3>My Activity Logs</h3>
@@ -541,7 +541,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     </div>
 </div>
 
-<!-- ── Appeal Modal ──────────────────────────────────────────────────────── -->
+<!--  Appeal Modal ─ -->
 <div id="appealModal" class="modal">
     <div class="modal-content">
         <h3><i class="fas fa-flag"></i> Appeal / Claim Wrong Marks</h3>
