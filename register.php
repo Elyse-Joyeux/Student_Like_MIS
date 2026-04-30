@@ -6,20 +6,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $full_name = mysqli_real_escape_string($conn, $_POST['full_name']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    
-    // Check if user exists
-    $check = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username' OR email = '$email'");
-    if (mysqli_num_rows($check) > 0) {
-        $error = "Username or email already exists";
+    $raw_password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'] ?? '';
+
+    if (strlen($raw_password) < 6) {
+        $error = "Password must be at least 6 characters long.";
+    } elseif ($raw_password !== $confirm_password) {
+        $error = "Passwords do not match. Please try again.";
     } else {
-        $query = "INSERT INTO users (username, email, password, full_name, role) VALUES ('$username', '$email', '$password', '$full_name', 'student')";
-        if (mysqli_query($conn, $query)) {
-            $user_id = mysqli_insert_id($conn);
-            mysqli_query($conn, "INSERT INTO user_settings (user_id) VALUES ($user_id)");
-            redirect('index.php?success=Registration successful! Please login.');
+        $password = password_hash($raw_password, PASSWORD_DEFAULT);
+        // Check if user exists
+        $check = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username' OR email = '$email'");
+        if (mysqli_num_rows($check) > 0) {
+            $error = "Username or email already exists";
         } else {
-            $error = "Registration failed. Please try again.";
+            $query = "INSERT INTO users (username, email, password, full_name, role) VALUES ('$username', '$email', '$password', '$full_name', 'student')";
+            if (mysqli_query($conn, $query)) {
+                $user_id = mysqli_insert_id($conn);
+                mysqli_query($conn, "INSERT INTO user_settings (user_id) VALUES ($user_id)");
+                redirect('index.php?success=Registration successful! Please login.');
+            } else {
+                $error = "Registration failed. Please try again.";
+            }
         }
     }
 }
@@ -108,6 +116,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background: var(--input-bg);
             color: var(--text-primary);
         }
+        .pw-wrap { position: relative; }
+        .pw-wrap input { padding-right: 44px; }
+        .pw-eye {
+            position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; color: #a0aec0; font-size: 15px; user-select: none;
+        }
+        .pw-eye:hover { color: #667eea; }
+        .pw-match-msg { font-size: 12px; margin-top: 5px; display: block; min-height: 16px; }
         
         .btn-register {
             width: 100%;
@@ -187,7 +203,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Password</label>
-                <input type="password" name="password" required placeholder="Create a password">
+                <div class="pw-wrap">
+                    <input type="password" name="password" id="reg_password" required placeholder="At least 6 characters">
+                    <span class="pw-eye" onclick="togglePw('reg_password', this)"><i class="fas fa-eye"></i></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Confirm Password</label>
+                <div class="pw-wrap">
+                    <input type="password" name="confirm_password" id="reg_confirm" required placeholder="Repeat your password">
+                    <span class="pw-eye" onclick="togglePw('reg_confirm', this)"><i class="fas fa-eye"></i></span>
+                </div>
+                <small class="pw-match-msg" id="reg-match-msg"></small>
             </div>
             <button type="submit" class="btn-register"><i class="fas fa-check-circle"></i> Register</button>
         </form>
@@ -202,11 +229,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         document.body.classList.toggle('dark');
         const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
         localStorage.setItem('theme', theme);
+        const icon = document.querySelector('.theme-toggle i');
+        icon.classList.toggle('fa-moon', theme === 'light');
+        icon.classList.toggle('fa-sun', theme === 'dark');
     }
-    
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark');
+        const icon = document.querySelector('.theme-toggle i');
+        if (icon) { icon.classList.replace('fa-moon', 'fa-sun'); }
     }
+
+    function togglePw(fieldId, el) {
+        const input = document.getElementById(fieldId);
+        const icon = el.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    document.getElementById('reg_confirm').addEventListener('input', function () {
+        const msg = document.getElementById('reg-match-msg');
+        if (this.value === document.getElementById('reg_password').value) {
+            msg.style.color = '#276749'; msg.textContent = '✓ Passwords match';
+        } else {
+            msg.style.color = '#c53030'; msg.textContent = '✗ Passwords do not match';
+        }
+    });
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const pw = document.getElementById('reg_password').value;
+        const cp = document.getElementById('reg_confirm').value;
+        if (pw.length < 6) { e.preventDefault(); alert('Password must be at least 6 characters.'); return; }
+        if (pw !== cp) { e.preventDefault(); alert('Passwords do not match.'); }
+    });
 </script>
 </body>
 </html>
