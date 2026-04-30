@@ -23,46 +23,48 @@ $encryption = strtolower($_ENV['SMTP_ENCRYPTION'] ?? 'tls');
 define('SMTP_SECURE', $encryption === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS);
 
 
-function sendMail(string $to, string $subject, string $htmlBody, string $plainBody = ''): bool|string {
-    $mail = new PHPMailer(true);
-    try {
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host       = SMTP_HOST;
-        $mail->SMTPAuth   = true;
-        $mail->Username   = SMTP_USER;
-        $mail->Password   = SMTP_PASS;
-        $mail->SMTPSecure = SMTP_SECURE;
-        $mail->Port       = SMTP_PORT;
-        $mail->CharSet    = 'UTF-8';
+function sendMail(string $to, string $subject, string $htmlBody, string $plainBody = ''): bool|string
+{
+  $mail = new PHPMailer(true);
+  try {
+    // Server settings
+    $mail->isSMTP();
+    $mail->Host       = SMTP_HOST;
+    $mail->SMTPAuth   = true;
+    $mail->Username   = SMTP_USER;
+    $mail->Password   = SMTP_PASS;
+    $mail->SMTPSecure = SMTP_SECURE;
+    $mail->Port       = SMTP_PORT;
+    $mail->CharSet    = 'UTF-8';
 
-        // Recipients
-        $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
-        $mail->addAddress($to);
-        $mail->addReplyTo(SMTP_FROM, SMTP_FROM_NAME);
+    // Recipients
+    $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+    $mail->addAddress($to);
+    $mail->addReplyTo(SMTP_FROM, SMTP_FROM_NAME);
 
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = $htmlBody;
-        $mail->AltBody = $plainBody ?: strip_tags($htmlBody);
+    // Content
+    $mail->isHTML(true);
+    $mail->Subject = $subject;
+    $mail->Body    = $htmlBody;
+    $mail->AltBody = $plainBody ?: strip_tags($htmlBody);
 
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        return $mail->ErrorInfo;
-    }
+    $mail->send();
+    return true;
+  } catch (Exception $e) {
+    return $mail->ErrorInfo;
+  }
 }
 
 /**
  * Builds a clean, branded HTML email.
  * Returns the full HTML string ready to pass to sendMail().
  */
-function buildEmailHtml(string $recipientName, string $heading, string $bodyHtml, string $footerNote = ''): string {
-    $appName = htmlspecialchars(SMTP_FROM_NAME);
-    $year    = date('Y');
-    $footer  = $footerNote ? "<p style='color:#999;font-size:12px;margin-top:20px;'>{$footerNote}</p>" : '';
-    return <<<HTML
+function buildEmailHtml(string $recipientName, string $heading, string $bodyHtml, string $footerNote = ''): string
+{
+  $appName = htmlspecialchars(SMTP_FROM_NAME);
+  $year    = date('Y');
+  $footer  = $footerNote ? "<p style='color:#999;font-size:12px;margin-top:20px;'>{$footerNote}</p>" : '';
+  return <<<HTML
 <!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
