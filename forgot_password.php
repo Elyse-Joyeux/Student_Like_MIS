@@ -5,25 +5,39 @@ require_once 'mailer.php';
 
 $message = '';
 $error   = '';
+$notice  = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $email = trim($_POST['email'] ?? '');
 
-    $query = mysqli_query($conn, "SELECT id, username, full_name FROM users WHERE email = '$email'");
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Please enter a valid email address.";
+    } else {
+        $stmt = mysqli_prepare($conn, "SELECT id, username, full_name FROM users WHERE email = ? LIMIT 1");
+        mysqli_stmt_bind_param($stmt, "s", $email);
+        mysqli_stmt_execute($stmt);
+        $query = mysqli_stmt_get_result($stmt);
 
-    if ($user = mysqli_fetch_assoc($query)) {
-        $token   = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        if ($user = mysqli_fetch_assoc($query)) {
+            $token   = bin2hex(random_bytes(32));
+            $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-        mysqli_query($conn, "UPDATE users SET reset_token='$token', reset_expires='$expires' WHERE id={$user['id']}");
+            $update = mysqli_prepare($conn, "UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?");
+            mysqli_stmt_bind_param($update, "ssi", $token, $expires, $user['id']);
+            mysqli_stmt_execute($update);
 
-        $reset_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
-            . '://' . $_SERVER['HTTP_HOST']
-            . dirname($_SERVER['PHP_SELF'])
-            . '/reset_password.php?token=' . urlencode($token);
+            $app_url = rtrim($_ENV['APP_URL'] ?? '', '/');
+            $script_dir = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+            $app_path = trim(parse_url($app_url, PHP_URL_PATH) ?? '', '/');
+            $base_url = $app_url !== ''
+                ? $app_url . ($app_path === '' ? ($script_dir === '/' ? '' : $script_dir) : '')
+                : ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+                    . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')
+                    . ($script_dir === '/' ? '' : $script_dir));
+            $reset_link = $base_url . '/reset_password.php?token=' . urlencode($token);
 
-        //  Send branded email via SMTP 
-        $bodyHtml = "
+            //  Send branded email via SMTP 
+            $bodyHtml = "
             <p>We received a request to reset your password. Click the button below to choose a new one.</p>
             <div style='text-align:center;margin:30px 0;'>
                 <a href='" . htmlspecialchars($reset_link) . "'
@@ -38,27 +52,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p style='color:#e53e3e;font-size:13px;'><strong>⏰ This link expires in 1 hour.</strong></p>
             <p>If you did not request a password reset, you can safely ignore this email — your password will not change.</p>
         ";
-        $html = buildEmailHtml(
-            $user['full_name'],
-            'Password Reset Request',
-            $bodyHtml,
-            'This is an automated message from the Student Management System. Please do not reply to this email.'
-        );
+            $html = buildEmailHtml(
+                $user['full_name'],
+                'Password Reset Request',
+                $bodyHtml,
+                'This is an automated message from the Student Management System. Please do not reply to this email.'
+            );
 
-        $result = sendMail($email, 'Password Reset — Student Management System', $html);
+            $result = sendMail($email, 'Password Reset — Student Management System', $html);
 
-        if ($result === true) {
-            $message = $reset_link;
+            if ($result === true) {
+                $message = $reset_link;
+            } else {
+                // SMTP failed — still show the link locally so the user isn't locked out
+                // Log the error for the admin
+                error_log("Password reset SMTP error for $email: $result");
+                $message = $reset_link;
+                $smtp_error = $result; // shown only when SMTP fails
+            }
         } else {
-            // SMTP failed — still show the link locally so the user isn't locked out
-            // Log the error for the admin
-            error_log("Password reset SMTP error for $email: $result");
-            $message = $reset_link;
-            $smtp_error = $result; // shown only when SMTP fails
+            // Intentionally vague to avoid user enumeration
+            $notice = "If that email exists in our system, a reset link has been sent.";
         }
-    } else {
-        // Intentionally vague to avoid user enumeration
-        $error = "If that email exists in our system, a reset link has been sent.";
     }
 }
 ?>
@@ -281,9 +296,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php endif; ?>
 
         <?php if ($error): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($notice): ?>
         <div class="alert alert-success">
             <!-- Intentionally success-looking to avoid user enumeration -->
-            <i class="fas fa-envelope"></i> <?php echo htmlspecialchars($error); ?>
+            <i class="fas fa-envelope"></i> <?php echo htmlspecialchars($notice); ?>
         </div>
         <?php endif; ?>
 
