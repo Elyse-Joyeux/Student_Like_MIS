@@ -125,6 +125,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -132,535 +133,981 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { overflow-x: hidden; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.3s; overflow-x: hidden; }
-        :root {
-            --bg-primary: #ffffff; --bg-secondary: #f5f7fb;
-            --text-primary: #1f2937; --text-secondary: #64748b;
-            --border: #e2e8f0; --card-bg: #ffffff; --input-bg: #ffffff; --accent: #4f46e5;
-        }
-        body.dark {
-            --bg-primary: #1e2533; --bg-secondary: #141820;
-            --text-primary: #e2e8f0; --text-secondary: #94a3b8;
-            --border: #374151; --card-bg: #252d3d; --input-bg: #1e2533; --accent: #818cf8;
-        }
-        .container { display: flex; min-height: 100vh; }
-        .sidebar {
-            width: 260px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 30px 20px 180px 20px;
-            position: fixed; height: 100vh; overflow-y: auto;
-        }
-        .sidebar h2 { font-size: 20px; margin-bottom: 30px; text-align: center; }
-        .sidebar nav a {
-            display: block; padding: 12px 15px; color: rgba(255,255,255,0.8);
-            text-decoration: none; border-radius: 10px; margin-bottom: 8px;
-            transition: all 0.2s; font-size: 14px;
-        }
-        .sidebar nav a i { margin-right: 10px; width: 16px; }
-        .sidebar nav a:hover { background: rgba(255,255,255,0.15); color: white; }
-        .sidebar nav a.active { background: rgba(255,255,255,0.25); color: white; font-weight: 600; }
-        .badge-pill { display: inline-block; background: #e53e3e; color: white; border-radius: 20px; padding: 1px 8px; font-size: 11px; margin-left: 6px; }
-        .main-content { flex: 1; min-width: 0; margin-left: 260px; padding: 30px; padding-bottom: 140px; }
-        .card { background: var(--card-bg); border-radius: 8px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(15,23,42,0.06); overflow-x: auto; }
-        .card h3 { margin-bottom: 20px; font-size: 18px; border-left: 4px solid var(--accent); padding-left: 15px; color: var(--text-primary); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: linear-gradient(135deg, #4f46e5, #0f766e); color: white; padding: 20px; border-radius: 8px; }
-        table { width: 100%; min-width: 680px; border-collapse: collapse; }
-        table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-        table th { color: var(--text-secondary); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0; background: var(--bg-secondary); }
-        table td { color: var(--text-primary); font-size: 14px; }
-        tbody tr:hover { background: rgba(79,70,229,0.04); }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; min-height: 38px; white-space: nowrap; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-warning { background: #ed8936; color: white; }
-        .btn-sm { padding: 6px 12px; font-size: 13px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px; border: 1px solid var(--border);
-            border-radius: 8px; background: var(--input-bg); color: var(--text-primary);
-        }
-        .grade-A { color: #48bb78; font-weight: bold; }
-        .grade-B { color: #4299e1; font-weight: bold; }
-        .grade-C { color: #ed8936; font-weight: bold; }
-        .grade-D { color: #e53e3e; font-weight: bold; }
-        .alert { padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; }
-        .alert-error { background: #fed7d7; color: #c53030; border-color: #fc8181; }
-        .alert-info { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
-        .pw-wrap { position: relative; }
-        .pw-wrap input { padding-right: 42px; }
-        .pw-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); font-size: 15px; }
-        .pw-eye:hover { color: #667eea; }
-        .info-notice { background: #ebf4ff; border: 1px solid #bee3f8; color: #2b6cb0; border-radius: 10px; padding: 12px 16px; font-size: 13px; margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; }
-        body.dark .info-notice { background: #1a2a3a; border-color: #2b4c6f; color: #90cdf4; }
-        .notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        .notif-item:hover { background: rgba(102,126,234,0.06); }
-        .notif-item.unread { background: #ebf8ff; border-left: 3px solid #4299e1; }
-        body.dark .notif-item.unread { background: #1a2d3d; }
-        .notif-time { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-        .status-pending  { background: #fefcbf; color: #744210; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
-        .status-approved { background: #c6f6d5; color: #276749; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
-        .status-rejected { background: #fed7d7; color: #c53030; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
-        .modal-content h3 { color: var(--text-primary); margin-bottom: 16px; }
-        .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 48px; height: 48px; cursor: pointer; z-index: 100; font-size: 18px; color: var(--text-primary); box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
-        
-        /* Mobile hamburger menu */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        overflow-x: hidden;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s;
+        overflow-x: hidden;
+    }
+
+    :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f7fb;
+        --text-primary: #1f2937;
+        --text-secondary: #64748b;
+        --border: #e2e8f0;
+        --card-bg: #ffffff;
+        --input-bg: #ffffff;
+        --accent: #4f46e5;
+    }
+
+    body.dark {
+        --bg-primary: #1e2533;
+        --bg-secondary: #141820;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --border: #374151;
+        --card-bg: #252d3d;
+        --input-bg: #1e2533;
+        --accent: #818cf8;
+    }
+
+    .container {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 260px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 20px 180px 20px;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    .sidebar h2 {
+        font-size: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .sidebar nav a {
+        display: block;
+        padding: 12px 15px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+
+    .sidebar nav a i {
+        margin-right: 10px;
+        width: 16px;
+    }
+
+    .sidebar nav a:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+
+    .sidebar nav a.active {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        font-weight: 600;
+    }
+
+    .badge-pill {
+        display: inline-block;
+        background: #e53e3e;
+        color: white;
+        border-radius: 20px;
+        padding: 1px 8px;
+        font-size: 11px;
+        margin-left: 6px;
+    }
+
+    .main-content {
+        flex: 1;
+        min-width: 0;
+        margin-left: 260px;
+        padding: 30px;
+        padding-bottom: 140px;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+        overflow-x: auto;
+    }
+
+    .card h3 {
+        margin-bottom: 20px;
+        font-size: 18px;
+        border-left: 4px solid var(--accent);
+        padding-left: 15px;
+        color: var(--text-primary);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #4f46e5, #0f766e);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    table {
+        width: 100%;
+        min-width: 680px;
+        border-collapse: collapse;
+    }
+
+    table th,
+    table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+
+    table th {
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0;
+        background: var(--bg-secondary);
+    }
+
+    table td {
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    tbody tr:hover {
+        background: rgba(79, 70, 229, 0.04);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        min-height: 38px;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+    }
+
+    .btn-warning {
+        background: #ed8936;
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--text-primary);
+    }
+
+    .grade-A {
+        color: #48bb78;
+        font-weight: bold;
+    }
+
+    .grade-B {
+        color: #4299e1;
+        font-weight: bold;
+    }
+
+    .grade-C {
+        color: #ed8936;
+        font-weight: bold;
+    }
+
+    .grade-D {
+        color: #e53e3e;
+        font-weight: bold;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        background: #c6f6d5;
+        color: #276749;
+        border: 1px solid #9ae6b4;
+    }
+
+    .alert-error {
+        background: #fed7d7;
+        color: #c53030;
+        border-color: #fc8181;
+    }
+
+    .alert-info {
+        background: #ebf8ff;
+        color: #2b6cb0;
+        border: 1px solid #bee3f8;
+    }
+
+    .pw-wrap {
+        position: relative;
+    }
+
+    .pw-wrap input {
+        padding-right: 42px;
+    }
+
+    .pw-eye {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--text-secondary);
+        font-size: 15px;
+    }
+
+    .pw-eye:hover {
+        color: #667eea;
+    }
+
+    .info-notice {
+        background: #ebf4ff;
+        border: 1px solid #bee3f8;
+        color: #2b6cb0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 13px;
+        margin-top: 12px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    body.dark .info-notice {
+        background: #1a2a3a;
+        border-color: #2b4c6f;
+        color: #90cdf4;
+    }
+
+    .notif-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+    }
+
+    .notif-item:hover {
+        background: rgba(102, 126, 234, 0.06);
+    }
+
+    .notif-item.unread {
+        background: #ebf8ff;
+        border-left: 3px solid #4299e1;
+    }
+
+    body.dark .notif-item.unread {
+        background: #1a2d3d;
+    }
+
+    .notif-time {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+
+    .status-pending {
+        background: #fefcbf;
+        color: #744210;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .status-approved {
+        background: #c6f6d5;
+        color: #276749;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .status-rejected {
+        background: #fed7d7;
+        color: #c53030;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        border: 1px solid var(--border);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-content h3 {
+        color: var(--text-primary);
+        margin-bottom: 16px;
+    }
+
+    .theme-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        cursor: pointer;
+        z-index: 100;
+        font-size: 18px;
+        color: var(--text-primary);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Mobile hamburger menu */
+    .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 20px;
+        z-index: 999;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .mobile-menu-toggle:hover {
+        transform: scale(1.05);
+    }
+
+    .mobile-sidebar-close {
+        display: none;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
         .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 20px;
-            z-index: 999;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: block;
         }
-        
-        .mobile-menu-toggle:hover {
-            transform: scale(1.05);
+
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+            z-index: 998;
         }
-        
-        .mobile-sidebar-close {
-            display: none;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 8px;
+
+        .sidebar.active {
+            transform: translateX(0);
         }
-        
-        @media (max-width: 768px) { 
-            .mobile-menu-toggle {
-                display: block;
-            }
-            
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s;
-                z-index: 998;
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .sidebar.active .mobile-sidebar-close {
-                display: block;
-            }
-            
-            .main-content { 
-                margin-left: 0;
-                padding: 88px 16px 150px;
-                width: 100%;
-            }
-            .stats-grid { grid-template-columns: 1fr; gap: 14px; }
-            .card { padding: 18px; margin-bottom: 16px; }
-            .card h3 { font-size: 16px; }
-            table { min-width: 620px; }
-            .modal { align-items: flex-start; padding: 16px; overflow-y: auto; }
-            .modal-content { width: 100%; padding: 20px; margin-top: 48px; }
-            .theme-toggle { bottom: 118px; right: 16px; }
+
+        .sidebar.active .mobile-sidebar-close {
+            display: block;
         }
+
+        .main-content {
+            margin-left: 0;
+            padding: 88px 16px 150px;
+            width: 100%;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .card {
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+        }
+
+        table {
+            min-width: 620px;
+        }
+
+        .modal {
+            align-items: flex-start;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            width: 100%;
+            padding: 20px;
+            margin-top: 48px;
+        }
+
+        .theme-toggle {
+            bottom: 118px;
+            right: 16px;
+        }
+    }
     </style>
 </head>
+
 <body class="dashboard-page">
-<div class="container">
-    <div class="sidebar">
-        <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
-        <button class="mobile-sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
-        <nav>
-            <a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#" onclick="showSection('results')"><i class="fas fa-chart-line"></i> My Results</a>
-            <a href="#" onclick="showSection('report_cards')"><i class="fas fa-file-alt"></i> Report Cards</a>
-            <a href="#" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications <?php if($unread_count > 0): ?><span class="badge-pill" id="notif-badge"><?php echo $unread_count; ?></span><?php endif; ?></a>
-            <a href="#" onclick="showSection('announcements')"><i class="fas fa-bullhorn"></i> Announcements</a>
-            <a href="#" onclick="showSection('profile')"><i class="fas fa-user"></i> My Profile</a>
-            <a href="#" onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</a>
-            <a href="#" onclick="showSection('logs')"><i class="fas fa-history"></i> My Logs</a>
-        </nav>
-        <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
-            <button onclick="toggleTheme()" style="width:100%; padding:11px 15px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:10px; color:white; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:10px;">
-                <i class="fas fa-moon" id="themeIcon"></i> <span id="themeLabel">Toggle Theme</span>
-            </button>
-            <a href="logout.php" style="display:block; margin-top:8px; padding:11px 15px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:rgba(255,255,255,0.85); text-decoration:none; font-size:14px;">
-                <i class="fas fa-sign-out-alt" style="margin-right:10px;"></i> Logout
-            </a>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <?php if(isset($_GET['msg'])): ?>
-            <div class="alert"><i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($_GET['msg']); ?></div>
-        <?php endif; ?>
-        <?php if(isset($error)): ?>
-            <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
-
-        <!--  Dashboard  -->
-        <div id="dashboard-section" style="display:none;">
-            <h1 style="margin-bottom:25px;">Welcome, <?php echo htmlspecialchars($_SESSION['full_name']); ?>!</h1>
-
-            <?php if($unread_count > 0): ?>
-            <div class="alert alert-info" style="cursor:pointer;" onclick="showSection('notifications')">
-                <i class="fas fa-bell"></i> You have <strong><?php echo $unread_count; ?> unread notification<?php echo $unread_count > 1 ? 's' : ''; ?></strong>. <a href="#" onclick="showSection('notifications'); return false;" style="color:#2b6cb0;">View now →</a>
+    <div class="container">
+        <div class="sidebar">
+            <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+            <button class="mobile-sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+            <nav>
+                <a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="#" onclick="showSection('results')"><i class="fas fa-chart-line"></i> My Results</a>
+                <a href="#" onclick="showSection('report_cards')"><i class="fas fa-file-alt"></i> Report Cards</a>
+                <a href="#" onclick="showSection('notifications')"><i class="fas fa-bell"></i> Notifications
+                    <?php if ($unread_count > 0): ?><span class="badge-pill"
+                        id="notif-badge"><?php echo $unread_count; ?></span><?php endif; ?></a>
+                <a href="#" onclick="showSection('announcements')"><i class="fas fa-bullhorn"></i> Announcements</a>
+                <a href="#" onclick="showSection('profile')"><i class="fas fa-user"></i> My Profile</a>
+                <a href="#" onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" onclick="showSection('logs')"><i class="fas fa-history"></i> My Logs</a>
+            </nav>
+            <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
+                <button onclick="toggleTheme()"
+                    style="width:100%; padding:11px 15px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:10px; color:white; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-moon" id="themeIcon"></i> <span id="themeLabel">Toggle Theme</span>
+                </button>
+                <a href="logout.php"
+                    style="display:block; margin-top:8px; padding:11px 15px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:rgba(255,255,255,0.85); text-decoration:none; font-size:14px;">
+                    <i class="fas fa-sign-out-alt" style="margin-right:10px;"></i> Logout
+                </a>
             </div>
+        </div>
+
+        <div class="main-content">
+            <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <?php if (isset($_GET['msg'])): ?>
+            <div class="alert"><i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($_GET['msg']); ?></div>
+            <?php endif; ?>
+            <?php if (isset($error)): ?>
+            <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i>
+                <?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="fas fa-chart-line fa-2x" style="margin-bottom:10px;"></i>
-                    <h3>Results</h3>
-                    <h2><?php echo mysqli_num_rows($results); ?></h2>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-file-alt fa-2x" style="margin-bottom:10px;"></i>
-                    <h3>Report Cards</h3>
-                    <h2><?php echo mysqli_num_rows($report_cards); ?></h2>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-bell fa-2x" style="margin-bottom:10px;"></i>
-                    <h3>Notifications</h3>
-                    <h2><?php echo $unread_count; ?> unread</h2>
-                </div>
-            </div>
+            <!--  Dashboard  -->
+            <div id="dashboard-section" style="display:none;">
+                <h1 style="margin-bottom:25px;">Welcome, <?php echo htmlspecialchars($_SESSION['full_name']); ?>!</h1>
 
-            <div class="card">
-                <h3>Latest Results</h3>
-                <?php
-                $latest = mysqli_query($conn, "SELECT * FROM results WHERE student_id=$user_id ORDER BY created_at DESC LIMIT 5");
-                if(mysqli_num_rows($latest) > 0): ?>
-                <table>
-                    <thead><tr><th>Subject</th><th>Exam</th><th>Marks</th><th>Grade</th></tr></thead>
-                    <tbody>
-                        <?php while($res = mysqli_fetch_assoc($latest)):
-                            $g = $res['marks'] >= 80 ? 'A' : ($res['marks'] >= 70 ? 'B' : ($res['marks'] >= 60 ? 'C' : 'D')); ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($res['subject']); ?></td>
-                            <td><?php echo htmlspecialchars($res['exam_type']); ?></td>
-                            <td><?php echo $res['marks']; ?>/100</td>
-                            <td class="grade-<?php echo $g; ?>"><?php echo $g; ?></td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-                <?php else: ?>
-                <p style="color:var(--text-secondary);">No results available yet.</p>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!--  Results + Appeals  -->
-        <div id="results-section" style="display:none;">
-            <div class="card">
-                <h3>All My Results</h3>
-                <?php
-                $results = mysqli_query($conn, "SELECT * FROM results WHERE student_id=$user_id ORDER BY year DESC, term DESC, created_at DESC");
-                if(mysqli_num_rows($results) > 0): ?>
-                <table>
-                    <thead><tr><th>Subject</th><th>Exam</th><th>Marks</th><th>Grade</th><th>Term</th><th>Year</th><th>Appeal</th></tr></thead>
-                    <tbody>
-                        <?php while($res = mysqli_fetch_assoc($results)):
-                            $g = $res['marks'] >= 80 ? 'A' : ($res['marks'] >= 70 ? 'B' : ($res['marks'] >= 60 ? 'C' : 'D'));
-                            // Check if appeal exists
-                            $ap_check = mysqli_fetch_assoc(mysqli_query($conn, "SELECT status FROM appeals WHERE result_id={$res['id']} AND student_id=$user_id ORDER BY created_at DESC LIMIT 1"));
-                        ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($res['subject']); ?></td>
-                            <td><?php echo htmlspecialchars($res['exam_type']); ?></td>
-                            <td><?php echo $res['marks']; ?>/100</td>
-                            <td class="grade-<?php echo $g; ?>"><?php echo $g; ?></td>
-                            <td><?php echo $res['term']; ?></td>
-                            <td><?php echo $res['year']; ?></td>
-                            <td>
-                                <?php if($ap_check): ?>
-                                    <span class="status-<?php echo $ap_check['status']; ?>"><?php echo ucfirst($ap_check['status']); ?></span>
-                                <?php else: ?>
-                                    <button class="btn btn-warning btn-sm" onclick="openAppealModal(<?php echo $res['id']; ?>, '<?php echo addslashes($res['subject']); ?>', <?php echo $res['marks']; ?>)">
-                                        <i class="fas fa-flag"></i> Appeal
-                                    </button>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-                <?php else: ?>
-                <p style="color:var(--text-secondary);">No results found. Contact your teacher.</p>
-                <?php endif; ?>
-            </div>
-
-            <!-- My Appeals History -->
-            <div class="card">
-                <h3>My Appeal History</h3>
-                <?php
-                $my_appeals = mysqli_query($conn, "SELECT ap.*, r.subject, r.marks, r.exam_type FROM appeals ap JOIN results r ON ap.result_id=r.id WHERE ap.student_id=$user_id ORDER BY ap.created_at DESC");
-                if(mysqli_num_rows($my_appeals) > 0): ?>
-                <table>
-                    <thead><tr><th>Subject</th><th>Exam</th><th>Marks</th><th>Status</th><th>Admin Note</th><th>Date</th></tr></thead>
-                    <tbody>
-                        <?php while($ap = mysqli_fetch_assoc($my_appeals)): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($ap['subject']); ?></td>
-                            <td><?php echo htmlspecialchars($ap['exam_type']); ?></td>
-                            <td><?php echo $ap['marks']; ?>/100</td>
-                            <td><span class="status-<?php echo $ap['status']; ?>"><?php echo ucfirst($ap['status']); ?></span></td>
-                            <td style="font-size:13px; color:var(--text-secondary);"><?php echo $ap['admin_note'] ? htmlspecialchars($ap['admin_note']) : '—'; ?></td>
-                            <td style="font-size:13px;"><?php echo date('M j, Y', strtotime($ap['created_at'])); ?></td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-                <?php else: ?>
-                <p style="color:var(--text-secondary);">You have not submitted any appeals yet.</p>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!--  Report Cards ─ -->
-        <div id="report_cards-section" style="display:none;">
-            <div class="card">
-                <h3>My Report Cards</h3>
-                <?php
-                $report_cards = mysqli_query($conn, "SELECT * FROM report_cards WHERE student_id=$user_id ORDER BY created_at DESC");
-                if(mysqli_num_rows($report_cards) > 0): ?>
-                <table>
-                    <thead><tr><th>Title</th><th>File</th><th>Uploaded</th><th>Download</th></tr></thead>
-                    <tbody>
-                        <?php while($rc = mysqli_fetch_assoc($report_cards)): ?>
-                        <tr>
-                            <td><strong><?php echo htmlspecialchars($rc['title']); ?></strong></td>
-                            <td style="font-size:13px; color:var(--text-secondary);"><?php echo htmlspecialchars($rc['file_name']); ?></td>
-                            <td style="font-size:13px;"><?php echo date('F j, Y', strtotime($rc['created_at'])); ?></td>
-                            <td>
-                                <a href="<?php echo htmlspecialchars($rc['file_path']); ?>" target="_blank" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-download"></i> View / Download
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-                <?php else: ?>
-                <div style="text-align:center; padding:40px; color:var(--text-secondary);">
-                    <i class="fas fa-file-alt fa-3x" style="margin-bottom:16px; opacity:0.4;"></i>
-                    <p>No report cards have been uploaded for you yet.</p>
-                    <p style="font-size:13px; margin-top:8px;">Your school administrator will upload them here when available.</p>
+                <?php if ($unread_count > 0): ?>
+                <div class="alert alert-info" style="cursor:pointer;" onclick="showSection('notifications')">
+                    <i class="fas fa-bell"></i> You have <strong><?php echo $unread_count; ?> unread
+                        notification<?php echo $unread_count > 1 ? 's' : ''; ?></strong>. <a href="#"
+                        onclick="showSection('notifications'); return false;" style="color:#2b6cb0;">View now →</a>
                 </div>
                 <?php endif; ?>
-            </div>
-        </div>
 
-        <!--  Notifications ─ -->
-        <div id="notifications-section" style="display:none;">
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3 style="margin-bottom:0;">Notifications</h3>
-                    <?php if($unread_count > 0): ?>
-                    <a href="student_dashboard.php?mark_read=1" class="btn btn-primary btn-sm"><i class="fas fa-check-double"></i> Mark All Read</a>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line fa-2x" style="margin-bottom:10px;"></i>
+                        <h3>Results</h3>
+                        <h2><?php echo mysqli_num_rows($results); ?></h2>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-file-alt fa-2x" style="margin-bottom:10px;"></i>
+                        <h3>Report Cards</h3>
+                        <h2><?php echo mysqli_num_rows($report_cards); ?></h2>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-bell fa-2x" style="margin-bottom:10px;"></i>
+                        <h3>Notifications</h3>
+                        <h2><?php echo $unread_count; ?> unread</h2>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Latest Results</h3>
+                    <?php
+                    $latest = mysqli_query($conn, "SELECT * FROM results WHERE student_id=$user_id ORDER BY created_at DESC LIMIT 5");
+                    if (mysqli_num_rows($latest) > 0): ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Exam</th>
+                                <th>Marks</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($res = mysqli_fetch_assoc($latest)):
+                                    $g = $res['marks'] >= 80 ? 'A' : ($res['marks'] >= 70 ? 'B' : ($res['marks'] >= 60 ? 'C' : 'D')); ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($res['subject']); ?></td>
+                                <td><?php echo htmlspecialchars($res['exam_type']); ?></td>
+                                <td><?php echo $res['marks']; ?>/100</td>
+                                <td class="grade-<?php echo $g; ?>"><?php echo $g; ?></td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                    <?php else: ?>
+                    <p style="color:var(--text-secondary);">No results available yet.</p>
                     <?php endif; ?>
                 </div>
-                <?php
-                $notifications = mysqli_query($conn, "SELECT * FROM notifications WHERE user_id=$user_id ORDER BY created_at DESC LIMIT 30");
-                if(mysqli_num_rows($notifications) > 0):
-                    while($notif = mysqli_fetch_assoc($notifications)): ?>
-                <div class="notif-item <?php echo $notif['is_read'] ? '' : 'unread'; ?>"
-                    style="cursor:pointer; border-radius:8px; transition:background 0.2s;"
-                    onclick="openNotifDetail(<?php echo htmlspecialchars(json_encode(['id'=>$notif['id'],'message'=>$notif['message'],'time'=>date('F j, Y g:i A', strtotime($notif['created_at']))]), ENT_QUOTES); ?>)">
-                    <div><?php echo $notif['message']; ?></div>
-                    <div class="notif-time"><i class="fas fa-clock"></i> <?php echo date('M j, Y g:i A', strtotime($notif['created_at'])); ?></div>
+            </div>
+
+            <!--  Results + Appeals  -->
+            <div id="results-section" style="display:none;">
+                <div class="card">
+                    <h3>All My Results</h3>
+                    <?php
+                    $results = mysqli_query($conn, "SELECT * FROM results WHERE student_id=$user_id ORDER BY year DESC, term DESC, created_at DESC");
+                    if (mysqli_num_rows($results) > 0): ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Exam</th>
+                                <th>Marks</th>
+                                <th>Grade</th>
+                                <th>Term</th>
+                                <th>Year</th>
+                                <th>Appeal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($res = mysqli_fetch_assoc($results)):
+                                    $g = $res['marks'] >= 80 ? 'A' : ($res['marks'] >= 70 ? 'B' : ($res['marks'] >= 60 ? 'C' : 'D'));
+                                    // Check if appeal exists
+                                    $ap_check = mysqli_fetch_assoc(mysqli_query($conn, "SELECT status FROM appeals WHERE result_id={$res['id']} AND student_id=$user_id ORDER BY created_at DESC LIMIT 1"));
+                                ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($res['subject']); ?></td>
+                                <td><?php echo htmlspecialchars($res['exam_type']); ?></td>
+                                <td><?php echo $res['marks']; ?>/100</td>
+                                <td class="grade-<?php echo $g; ?>"><?php echo $g; ?></td>
+                                <td><?php echo $res['term']; ?></td>
+                                <td><?php echo $res['year']; ?></td>
+                                <td>
+                                    <?php if ($ap_check): ?>
+                                    <span
+                                        class="status-<?php echo $ap_check['status']; ?>"><?php echo ucfirst($ap_check['status']); ?></span>
+                                    <?php else: ?>
+                                    <button class="btn btn-warning btn-sm"
+                                        onclick="openAppealModal(<?php echo $res['id']; ?>, '<?php echo addslashes($res['subject']); ?>', <?php echo $res['marks']; ?>)">
+                                        <i class="fas fa-flag"></i> Appeal
+                                    </button>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                    <?php else: ?>
+                    <p style="color:var(--text-secondary);">No results found. Contact your teacher.</p>
+                    <?php endif; ?>
                 </div>
-                <?php endwhile; else: ?>
-                <p style="color:var(--text-secondary); text-align:center; padding:30px;">No notifications yet.</p>
-                <?php endif; ?>
-            </div>
-        </div>
 
-        <!--  Announcements ─ -->
-        <div id="announcements-section" style="display:none;">
-            <div class="card">
-                <h3>School Announcements</h3>
-                <?php
-                $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements a JOIN users u ON a.created_by = u.id ORDER BY a.created_at DESC");
-                while($ann = mysqli_fetch_assoc($announcements)): ?>
-                <div style="padding: 15px 0; border-bottom: 1px solid var(--border);">
-                    <h4><?php echo htmlspecialchars($ann['title']); ?></h4>
-                    <p style="font-size:12px; color:var(--text-secondary); margin:4px 0;">Posted by <?php echo htmlspecialchars($ann['full_name']); ?> on <?php echo date('F j, Y', strtotime($ann['created_at'])); ?></p>
-                    <p style="margin-top: 10px; font-size:14px;"><?php echo nl2br(htmlspecialchars($ann['content'])); ?></p>
+                <!-- My Appeals History -->
+                <div class="card">
+                    <h3>My Appeal History</h3>
+                    <?php
+                    $my_appeals = mysqli_query($conn, "SELECT ap.*, r.subject, r.marks, r.exam_type FROM appeals ap JOIN results r ON ap.result_id=r.id WHERE ap.student_id=$user_id ORDER BY ap.created_at DESC");
+                    if (mysqli_num_rows($my_appeals) > 0): ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Exam</th>
+                                <th>Marks</th>
+                                <th>Status</th>
+                                <th>Admin Note</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($ap = mysqli_fetch_assoc($my_appeals)): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($ap['subject']); ?></td>
+                                <td><?php echo htmlspecialchars($ap['exam_type']); ?></td>
+                                <td><?php echo $ap['marks']; ?>/100</td>
+                                <td><span
+                                        class="status-<?php echo $ap['status']; ?>"><?php echo ucfirst($ap['status']); ?></span>
+                                </td>
+                                <td style="font-size:13px; color:var(--text-secondary);">
+                                    <?php echo $ap['admin_note'] ? htmlspecialchars($ap['admin_note']) : '—'; ?></td>
+                                <td style="font-size:13px;"><?php echo date('M j, Y', strtotime($ap['created_at'])); ?>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                    <?php else: ?>
+                    <p style="color:var(--text-secondary);">You have not submitted any appeals yet.</p>
+                    <?php endif; ?>
                 </div>
-                <?php endwhile; ?>
             </div>
-        </div>
 
-        <!--  Profile  -->
-        <div id="profile-section" style="display:none;">
-            <div class="card">
-                <h3>My Profile</h3>
-
-                <?php
-                // Check for admin-changed name notification
-                $name_change_notif = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM notifications WHERE user_id=$user_id AND message LIKE '%full name on record has been updated%' AND is_read=0 ORDER BY created_at DESC LIMIT 1"));
-                if ($name_change_notif): ?>
-                <div class="alert alert-info" style="margin-bottom:20px;">
-                    <i class="fas fa-info-circle"></i> Your name on record was recently changed by the administrator. If this was unexpected, please <strong>contact your school administrator for clarification</strong>.
+            <!--  Report Cards ─ -->
+            <div id="report_cards-section" style="display:none;">
+                <div class="card">
+                    <h3>My Report Cards</h3>
+                    <?php
+                    $report_cards = mysqli_query($conn, "SELECT * FROM report_cards WHERE student_id=$user_id ORDER BY created_at DESC");
+                    if (mysqli_num_rows($report_cards) > 0): ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>File</th>
+                                <th>Uploaded</th>
+                                <th>Download</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($rc = mysqli_fetch_assoc($report_cards)): ?>
+                            <tr>
+                                <td><strong><?php echo htmlspecialchars($rc['title']); ?></strong></td>
+                                <td style="font-size:13px; color:var(--text-secondary);">
+                                    <?php echo htmlspecialchars($rc['file_name']); ?></td>
+                                <td style="font-size:13px;"><?php echo date('F j, Y', strtotime($rc['created_at'])); ?>
+                                </td>
+                                <td>
+                                    <a href="<?php echo htmlspecialchars($rc['file_path']); ?>" target="_blank"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download"></i> View / Download
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                    <?php else: ?>
+                    <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                        <i class="fas fa-file-alt fa-3x" style="margin-bottom:16px; opacity:0.4;"></i>
+                        <p>No report cards have been uploaded for you yet.</p>
+                        <p style="font-size:13px; margin-top:8px;">Your school administrator will upload them here when
+                            available.</p>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
-
-                <form method="POST">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" name="full_name" value="<?php echo htmlspecialchars($user_info['full_name']); ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email (your own — admin cannot change this)</label>
-                        <input type="email" name="email" value="<?php echo htmlspecialchars($user_info['email']); ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Username <span style="color:#e53e3e;">*</span></label>
-                        <input type="text" name="username" value="<?php echo htmlspecialchars($user_info['username']); ?>" required placeholder="Enter username">
-                        <div class="info-notice" style="margin-top:8px;">
-                            <i class="fas fa-info-circle" style="flex-shrink:0;"></i>
-                            <span>You can update your username. Your new username must be unique across the system.</span>
-                        </div>
-                    </div>
-                    <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
-                </form>
             </div>
 
-            <div class="card">
-                <h3>Change Password</h3>
-                <form method="POST">
-                    <div class="form-group">
-                        <label>Current Password</label>
-                        <div class="pw-wrap">
-                            <input type="password" name="current_password" id="cur_pw" required placeholder="Enter current password">
-                            <span class="pw-eye" onclick="togglePw('cur_pw', this)"><i class="fas fa-eye"></i></span>
-                        </div>
+            <!--  Notifications ─ -->
+            <div id="notifications-section" style="display:none;">
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin-bottom:0;">Notifications</h3>
+                        <?php if ($unread_count > 0): ?>
+                        <a href="student_dashboard.php?mark_read=1" class="btn btn-primary btn-sm"><i
+                                class="fas fa-check-double"></i> Mark All Read</a>
+                        <?php endif; ?>
                     </div>
-                    <div class="form-group">
-                        <label>New Password</label>
-                        <div class="pw-wrap">
-                            <input type="password" name="new_password" id="new_pw" required placeholder="Enter new password">
-                            <span class="pw-eye" onclick="togglePw('new_pw', this)"><i class="fas fa-eye"></i></span>
-                        </div>
+                    <?php
+                    $notifications = mysqli_query($conn, "SELECT * FROM notifications WHERE user_id=$user_id ORDER BY created_at DESC LIMIT 30");
+                    if (mysqli_num_rows($notifications) > 0):
+                        while ($notif = mysqli_fetch_assoc($notifications)): ?>
+                    <div class="notif-item <?php echo $notif['is_read'] ? '' : 'unread'; ?>"
+                        style="cursor:pointer; border-radius:8px; transition:background 0.2s;"
+                        onclick="openNotifDetail(<?php echo htmlspecialchars(json_encode(['id' => $notif['id'], 'message' => $notif['message'], 'time' => date('F j, Y g:i A', strtotime($notif['created_at']))]), ENT_QUOTES); ?>)">
+                        <div><?php echo $notif['message']; ?></div>
+                        <div class="notif-time"><i class="fas fa-clock"></i>
+                            <?php echo date('M j, Y g:i A', strtotime($notif['created_at'])); ?></div>
                     </div>
-                    <div class="form-group">
-                        <label>Confirm New Password</label>
-                        <div class="pw-wrap">
-                            <input type="password" name="confirm_password" id="confirm_pw" required placeholder="Repeat new password">
-                            <span class="pw-eye" onclick="togglePw('confirm_pw', this)"><i class="fas fa-eye"></i></span>
-                        </div>
-                        <small id="pw-match-msg" style="font-size:12px; margin-top:5px; display:block;"></small>
-                    </div>
-                    <button type="submit" name="change_password" class="btn btn-primary" onclick="return checkPwMatch()">Change Password</button>
-                </form>
+                    <?php endwhile;
+                    else: ?>
+                    <p style="color:var(--text-secondary); text-align:center; padding:30px;">No notifications yet.</p>
+                    <?php endif; ?>
+                </div>
             </div>
-        </div>
 
-        <!--  Settings ─ -->
-        <div id="settings-section" style="display:none;">
-            <div class="card">
-                <h3>Application Settings</h3>
-                <form method="POST">
-                    <div class="form-group">
-                        <label>Theme Preference</label>
-                        <select name="theme" id="themeSelect" onchange="showThemeNotice(this)">
-                            <option value="light" <?php echo ($settings['theme'] == 'light') ? 'selected' : ''; ?>>☀️ Light Mode</option>
-                            <option value="dark"  <?php echo ($settings['theme'] == 'dark')  ? 'selected' : ''; ?>>🌙 Dark Mode</option>
-                        </select>
-                        <div class="info-notice" id="themeNotice" style="display:none;">
-                            <i class="fas fa-info-circle" style="flex-shrink:0;"></i>
-                            <span>This preference will be applied on your next login. Use the toggle button on the sidebar for an immediate change.</span>
-                        </div>
+            <!--  Announcements ─ -->
+            <div id="announcements-section" style="display:none;">
+                <div class="card">
+                    <h3>School Announcements</h3>
+                    <?php
+                    $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements a JOIN users u ON a.created_by = u.id ORDER BY a.created_at DESC");
+                    while ($ann = mysqli_fetch_assoc($announcements)): ?>
+                    <div style="padding: 15px 0; border-bottom: 1px solid var(--border);">
+                        <h4><?php echo htmlspecialchars($ann['title']); ?></h4>
+                        <p style="font-size:12px; color:var(--text-secondary); margin:4px 0;">Posted by
+                            <?php echo htmlspecialchars($ann['full_name']); ?> on
+                            <?php echo date('F j, Y', strtotime($ann['created_at'])); ?></p>
+                        <p style="margin-top: 10px; font-size:14px;">
+                            <?php echo nl2br(htmlspecialchars($ann['content'])); ?></p>
                     </div>
-                    <div class="form-group">
-                        <label><input type="checkbox" name="notifications" value="1" <?php echo $settings['notifications'] ? 'checked' : ''; ?>> Enable Email Notifications</label>
-                    </div>
-                    <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
-                </form>
+                    <?php endwhile; ?>
+                </div>
             </div>
-        </div>
 
-        <!--  Logs ─ -->
-        <div id="logs-section" style="display:none;">
-            <div class="card">
-                <h3>My Activity Logs</h3>
-                <table>
-                    <thead><tr><th>Time</th><th>Action</th><th>Details</th><th>IP Address</th></tr></thead>
-                    <tbody>
-                        <?php while($log = mysqli_fetch_assoc($logs)): ?>
-                        <tr>
-                            <td style="font-size:13px;"><?php echo $log['created_at']; ?></td>
-                            <td><?php echo htmlspecialchars($log['action']); ?></td>
-                            <td style="font-size:13px;"><?php echo htmlspecialchars($log['details']); ?></td>
-                            <td style="font-size:13px;"><?php echo $log['ip_address']; ?></td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+            <!--  Profile  -->
+            <div id="profile-section" style="display:none;">
+                <div class="card">
+                    <h3>My Profile</h3>
+
+                    <?php
+                    // Check for admin-changed name notification
+                    $name_change_notif = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM notifications WHERE user_id=$user_id AND message LIKE '%full name on record has been updated%' AND is_read=0 ORDER BY created_at DESC LIMIT 1"));
+                    if ($name_change_notif): ?>
+                    <div class="alert alert-info" style="margin-bottom:20px;">
+                        <i class="fas fa-info-circle"></i> Your name on record was recently changed by the
+                        administrator. If this was unexpected, please <strong>contact your school administrator for
+                            clarification</strong>.
+                    </div>
+                    <?php endif; ?>
+
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="full_name"
+                                value="<?php echo htmlspecialchars($user_info['full_name']); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email (your own — admin cannot change this)</label>
+                            <input type="email" name="email"
+                                value="<?php echo htmlspecialchars($user_info['email']); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Username <span style="color:#e53e3e;">*</span></label>
+                            <input type="text" name="username"
+                                value="<?php echo htmlspecialchars($user_info['username']); ?>" required
+                                placeholder="Enter username">
+                            <div class="info-notice" style="margin-top:8px;">
+                                <i class="fas fa-info-circle" style="flex-shrink:0;"></i>
+                                <span>You can update your username. Your new username must be unique across the
+                                    system.</span>
+                            </div>
+                        </div>
+                        <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Change Password</h3>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" name="current_password" id="cur_pw" required
+                                    placeholder="Enter current password">
+                                <span class="pw-eye" onclick="togglePw('cur_pw', this)"><i
+                                        class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" name="new_password" id="new_pw" required
+                                    placeholder="Enter new password">
+                                <span class="pw-eye" onclick="togglePw('new_pw', this)"><i
+                                        class="fas fa-eye"></i></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" name="confirm_password" id="confirm_pw" required
+                                    placeholder="Repeat new password">
+                                <span class="pw-eye" onclick="togglePw('confirm_pw', this)"><i
+                                        class="fas fa-eye"></i></span>
+                            </div>
+                            <small id="pw-match-msg" style="font-size:12px; margin-top:5px; display:block;"></small>
+                        </div>
+                        <button type="submit" name="change_password" class="btn btn-primary"
+                            onclick="return checkPwMatch()">Change Password</button>
+                    </form>
+                </div>
+            </div>
+
+            <!--  Settings ─ -->
+            <div id="settings-section" style="display:none;">
+                <div class="card">
+                    <h3>Application Settings</h3>
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Theme Preference</label>
+                            <select name="theme" id="themeSelect" onchange="showThemeNotice(this)">
+                                <option value="light" <?php echo ($settings['theme'] == 'light') ? 'selected' : ''; ?>>
+                                    ☀️ Light Mode</option>
+                                <option value="dark" <?php echo ($settings['theme'] == 'dark')  ? 'selected' : ''; ?>>🌙
+                                    Dark Mode</option>
+                            </select>
+                            <div class="info-notice" id="themeNotice" style="display:none;">
+                                <i class="fas fa-info-circle" style="flex-shrink:0;"></i>
+                                <span>This preference will be applied on your next login. Use the toggle button on the
+                                    sidebar for an immediate change.</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" name="notifications" value="1"
+                                    <?php echo $settings['notifications'] ? 'checked' : ''; ?>> Enable Email
+                                Notifications</label>
+                        </div>
+                        <button type="submit" name="update_settings" class="btn btn-primary">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+
+            <!--  Logs ─ -->
+            <div id="logs-section" style="display:none;">
+                <div class="card">
+                    <h3>My Activity Logs</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php while ($log = mysqli_fetch_assoc($logs)): ?>
+                            <tr>
+                                <td style="font-size:13px;"><?php echo $log['created_at']; ?></td>
+                                <td><?php echo htmlspecialchars($log['action']); ?></td>
+                                <td style="font-size:13px;"><?php echo htmlspecialchars($log['details']); ?></td>
+                                <td style="font-size:13px;"><?php echo $log['ip_address']; ?></td>
+                            </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!--  Appeal Modal ─ -->
-<div id="appealModal" class="modal">
-    <div class="modal-content">
-        <h3><i class="fas fa-flag"></i> Appeal / Claim Wrong Marks</h3>
-        <div style="background:var(--bg-secondary); border-radius:10px; padding:14px; margin-bottom:16px; font-size:14px;">
-            <p>Subject: <strong id="ap_modal_subject"></strong></p>
-            <p>Current Marks: <strong id="ap_modal_marks"></strong>/100</p>
-        </div>
-        <form method="POST">
-            <input type="hidden" name="result_id" id="ap_modal_result_id">
-            <div class="form-group">
-                <label>Reason for Appeal <span style="color:#e53e3e;">*</span></label>
-                <textarea name="reason" rows="5" required minlength="10" placeholder="Clearly explain why you believe the marks are incorrect. Provide as much detail as possible (e.g. what you submitted, the correct answer, any evidence)."></textarea>
+    <!--  Appeal Modal ─ -->
+    <div id="appealModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-flag"></i> Appeal / Claim Wrong Marks</h3>
+            <div
+                style="background:var(--bg-secondary); border-radius:10px; padding:14px; margin-bottom:16px; font-size:14px;">
+                <p>Subject: <strong id="ap_modal_subject"></strong></p>
+                <p>Current Marks: <strong id="ap_modal_marks"></strong>/100</p>
             </div>
-            <div style="background:#fffbeb; border:1px solid #f6e05e; border-radius:8px; padding:10px 14px; font-size:13px; color:#744210; margin-bottom:16px;">
-                <i class="fas fa-info-circle"></i> Your appeal will be reviewed by the administrator. You will receive a notification once a decision is made.
-            </div>
-            <div style="display:flex; gap:10px;">
-                <button type="submit" name="submit_appeal" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Submit Appeal</button>
-                <button type="button" class="btn" onclick="closeModal('appealModal')" style="background:var(--border);">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Notification Detail Modal -->
-<div id="notifDetailModal" class="modal">
-    <div class="modal-content" style="max-width:600px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 style="margin:0;"><i class="fas fa-bell" style="color:#667eea; margin-right:10px;"></i> Notification</h3>
-            <button onclick="closeModal('notifDetailModal')" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-secondary);">&times;</button>
-        </div>
-        <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; margin-bottom:16px; font-size:15px; line-height:1.8; color:var(--text-primary);" id="notif-detail-message"></div>
-        <div style="font-size:13px; color:var(--text-secondary); padding-top:8px; border-top:1px solid var(--border);"><i class="fas fa-clock" style="margin-right:6px;"></i><span id="notif-detail-time"></span></div>
-        <div style="margin-top:20px; text-align:right;">
-            <button onclick="closeModal('notifDetailModal')" class="btn btn-primary">Close</button>
+            <form method="POST">
+                <input type="hidden" name="result_id" id="ap_modal_result_id">
+                <div class="form-group">
+                    <label>Reason for Appeal <span style="color:#e53e3e;">*</span></label>
+                    <textarea name="reason" rows="5" required minlength="10"
+                        placeholder="Clearly explain why you believe the marks are incorrect. Provide as much detail as possible (e.g. what you submitted, the correct answer, any evidence)."></textarea>
+                </div>
+                <div
+                    style="background:#fffbeb; border:1px solid #f6e05e; border-radius:8px; padding:10px 14px; font-size:13px; color:#744210; margin-bottom:16px;">
+                    <i class="fas fa-info-circle"></i> Your appeal will be reviewed by the administrator. You will
+                    receive a notification once a decision is made.
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button type="submit" name="submit_appeal" class="btn btn-primary"><i
+                            class="fas fa-paper-plane"></i> Submit Appeal</button>
+                    <button type="button" class="btn" onclick="closeModal('appealModal')"
+                        style="background:var(--border);">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
 
-<button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIconBtn"></i></button>
+    <!-- Notification Detail Modal -->
+    <div id="notifDetailModal" class="modal">
+        <div class="modal-content" style="max-width:600px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0;"><i class="fas fa-bell" style="color:#667eea; margin-right:10px;"></i> Notification
+                </h3>
+                <button onclick="closeModal('notifDetailModal')"
+                    style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-secondary);">&times;</button>
+            </div>
+            <div style="background:var(--bg-secondary); border-radius:12px; padding:20px; margin-bottom:16px; font-size:15px; line-height:1.8; color:var(--text-primary);"
+                id="notif-detail-message"></div>
+            <div
+                style="font-size:13px; color:var(--text-secondary); padding-top:8px; border-top:1px solid var(--border);">
+                <i class="fas fa-clock" style="margin-right:6px;"></i><span id="notif-detail-time"></span></div>
+            <div style="margin-top:20px; text-align:right;">
+                <button onclick="closeModal('notifDetailModal')" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
 
-<script>
-    const SECTIONS = ['dashboard','results','report_cards','notifications','announcements','profile','settings','logs'];
+    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIconBtn"></i></button>
+
+    <script>
+    const SECTIONS = ['dashboard', 'results', 'report_cards', 'notifications', 'announcements', 'profile', 'settings',
+        'logs'
+    ];
 
     function toggleSidebar() {
         document.querySelector('.sidebar')?.classList.toggle('active');
@@ -669,7 +1116,8 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     document.addEventListener('click', function(event) {
         const sidebar = document.querySelector('.sidebar');
         const toggleBtn = document.querySelector('.mobile-menu-toggle');
-        if (sidebar && toggleBtn && !sidebar.contains(event.target) && !toggleBtn.contains(event.target) && window.innerWidth <= 768) {
+        if (sidebar && toggleBtn && !sidebar.contains(event.target) && !toggleBtn.contains(event.target) &&
+            window.innerWidth <= 768) {
             sidebar.classList.remove('active');
         }
     });
@@ -708,8 +1156,13 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         }
     }
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
 
     function openAppealModal(resultId, subject, marks) {
         document.getElementById('ap_modal_result_id').value = resultId;
@@ -719,16 +1172,26 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     }
 
     function applyTheme(theme) {
-        const icon    = document.getElementById('themeIcon');
-        const label   = document.getElementById('themeLabel');
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
         const iconBtn = document.getElementById('themeIconBtn');
         if (theme === 'dark') {
             document.body.classList.add('dark');
-            [icon, iconBtn].forEach(i => { if(i){ i.classList.remove('fa-moon'); i.classList.add('fa-sun'); }});
+            [icon, iconBtn].forEach(i => {
+                if (i) {
+                    i.classList.remove('fa-moon');
+                    i.classList.add('fa-sun');
+                }
+            });
             if (label) label.textContent = 'Light Mode';
         } else {
             document.body.classList.remove('dark');
-            [icon, iconBtn].forEach(i => { if(i){ i.classList.remove('fa-sun'); i.classList.add('fa-moon'); }});
+            [icon, iconBtn].forEach(i => {
+                if (i) {
+                    i.classList.remove('fa-sun');
+                    i.classList.add('fa-moon');
+                }
+            });
             if (label) label.textContent = 'Dark Mode';
         }
     }
@@ -743,14 +1206,23 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     function togglePw(fieldId, el) {
         const input = document.getElementById(fieldId);
         const icon = el.querySelector('i');
-        if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
-        else { input.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
     }
 
     function checkPwMatch() {
         const np = document.getElementById('new_pw').value;
         const cp = document.getElementById('confirm_pw').value;
-        if (np !== cp) { document.getElementById('pw-match-msg').style.color='#c53030'; document.getElementById('pw-match-msg').textContent='✗ Passwords do not match'; return false; }
+        if (np !== cp) {
+            document.getElementById('pw-match-msg').style.color = '#c53030';
+            document.getElementById('pw-match-msg').textContent = '✗ Passwords do not match';
+            return false;
+        }
         return true;
     }
 
@@ -760,8 +1232,13 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         if (cp && np) {
             cp.addEventListener('input', function() {
                 const msg = document.getElementById('pw-match-msg');
-                if (this.value === np.value) { msg.style.color='#276749'; msg.textContent='✓ Passwords match'; }
-                else { msg.style.color='#c53030'; msg.textContent='✗ Passwords do not match'; }
+                if (this.value === np.value) {
+                    msg.style.color = '#276749';
+                    msg.textContent = '✓ Passwords match';
+                } else {
+                    msg.style.color = '#c53030';
+                    msg.textContent = '✗ Passwords do not match';
+                }
             });
         }
     });
@@ -778,11 +1255,14 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         openModal('notifDetailModal');
     }
 
-    window.onclick = e => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
+    window.onclick = e => {
+        if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+    };
 
     applyTheme(localStorage.getItem('theme') || '<?php echo $settings["theme"] ?? "light"; ?>');
     showSection(localStorage.getItem('studentSection') || '<?php echo $restore_section; ?>');
-</script>
-<?php include 'footer.php'; ?>
+    </script>
+    <?php include 'footer.php'; ?>
 </body>
+
 </html>
