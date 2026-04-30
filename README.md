@@ -38,6 +38,10 @@ A comprehensive web-based Student Management System built with PHP and MySQL. Th
 - Session management
 - CSRF protection ready
 - Secure credential handling via environment variables
+- **Dedicated Admin Management** - Only authenticated admins can create new admin accounts
+- **Reserved Username "admin"** - Cannot be used by students during registration
+- **One-time Admin Setup** - Initial admin creation only possible on first installation
+- **Audit Logging** - All admin actions are recorded for security compliance
 
 ### 📧 Communication
 
@@ -113,16 +117,27 @@ The application will automatically create all necessary tables on first run.
 http://localhost/Student_Like_MIS/
 ```
 
-### 6. Default Login Credentials
+### 6. Create First Admin Account
 
-**Admin Account** (create via registration):
+On first access, you'll be automatically redirected to the **Admin Setup Page** (`admin_setup.php`).
 
-- Role: Admin
-- Use registration form to create initial admin account
+**Fill in your admin details:**
 
-**Student Account**:
+- Full Name: Your name
+- Username: Choose your admin username (any unique name)
+- Email: Your email address
+- Password: Create a strong password (min. 6 characters)
 
-- Created by admin or through registration
+**After creation:**
+
+- The setup page becomes inaccessible
+- Only existing admins can create new admin/user accounts
+- You can now login and manage the system
+
+**Student Accounts:**
+
+- Created by admin through the admin dashboard
+- Students can also register themselves (optional)
 
 ## Project Structure
 
