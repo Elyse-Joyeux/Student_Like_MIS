@@ -1,20 +1,34 @@
 <?php
 
+/**
+ * Email Configuration & SMTP Handler
+ * 
+ * Author: Elyse Joyeux
+ * Version: 1.0.0
+ * © 2026 Elyse Joyeux. All rights reserved.
+ */
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-//   CONFIGURE YOUR SMTP CREDENTIALS HERE 
-define('SMTP_HOST',     'smtp.gmail.com');        // e.g. smtp.gmail.com 
-define('SMTP_PORT',     587);                     // 587 for TLS, 465 for SSL
-define('SMTP_SECURE',   PHPMailer::ENCRYPTION_STARTTLS); // or ENCRYPTION_SMTPS for port 465
-define('SMTP_USER',     'schoollyse12@gmail.com');  // ← your sending email address
-define('SMTP_PASS',     'psjs jonh mmoc boen');     // ← Gmail App Password (App password in manage google account)
-define('SMTP_FROM',     'schoollyse12@gmail.com');  // ← must match SMTP_USER for Gmail
-define('SMTP_FROM_NAME','Student Management System');
-// 
+// Load environment variables from .env file
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+// SMTP configuration from environment variables
+define('SMTP_HOST',     $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com');
+define('SMTP_PORT',     $_ENV['SMTP_PORT'] ?? 587);
+define('SMTP_USER',     $_ENV['SMTP_USER'] ?? '');
+define('SMTP_PASS',     $_ENV['SMTP_PASS'] ?? '');
+define('SMTP_FROM',     $_ENV['SMTP_FROM_EMAIL'] ?? $_ENV['SMTP_USER'] ?? '');
+define('SMTP_FROM_NAME', $_ENV['SMTP_FROM_NAME'] ?? 'Student Management System');
+
+// Determine encryption type from environment
+$encryption = strtolower($_ENV['SMTP_ENCRYPTION'] ?? 'tls');
+define('SMTP_SECURE', $encryption === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS);
 
 
 function sendMail(string $to, string $subject, string $htmlBody, string $plainBody = ''): bool|string {

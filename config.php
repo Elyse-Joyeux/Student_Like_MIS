@@ -1,19 +1,38 @@
 <?php
 
+/**
+ * Database Configuration & Setup
+ * 
+ * Author: Elyse Joyeux
+ * Version: 1.0.0
+ * © 2026 Elyse Joyeux. All rights reserved.
+ */
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+// Load environment variables from .env file
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 session_start();
 
 // Database configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', 'joyeux@2010');
-define('DB_NAME', 'sms_db');
+define('DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
+define('DB_PORT', $_ENV['DB_PORT'] ?? 3306);
+define('DB_USER', $_ENV['DB_USER'] ?? 'root');
+define('DB_PASS', $_ENV['DB_PASS'] ?? '');
+define('DB_NAME', $_ENV['DB_NAME'] ?? 'sms_db');
+define('DB_CHARSET', $_ENV['DB_CHARSET'] ?? 'utf8mb4');
 
 // Connect to database
-$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
+
+// Set character set
+mysqli_set_charset($conn, DB_CHARSET);
 
 // Create tables if not exists
 $create_users = "CREATE TABLE IF NOT EXISTS users (

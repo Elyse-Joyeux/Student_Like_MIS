@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Manage Results Page - Admin Panel
+ * 
+ * Author: Elyse Joyeux
+ * Version: 1.0.0
+ * © 2026 Elyse Joyeux. All rights reserved.
+ */
+
 require_once 'config.php';
 
 if (!isLoggedIn() || !isAdmin()) {

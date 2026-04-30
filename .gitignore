@@ -1,0 +1,72 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Vendor directory
+/vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Uploads
+/uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+
+# Database files
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.mdb
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+*~
+*.old
+
+# Session and cache files
+/sessions/
+/cache/
+/tmp/
+.cache/
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+private_key.txt
+secret.txt
+
+# PHP-specific
+.php_cs.cache
+.phpcs.cache
+.phan.codebase.php
+
+# Package lock files (optional - uncomment if not using versioning)
+# composer.lock
+
+# macOS
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
