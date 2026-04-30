@@ -218,7 +218,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         .container { display: flex; min-height: 100vh; }
         .sidebar {
             width: 260px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 30px 20px 100px 20px;
+            color: white; padding: 30px 20px 180px 20px;
             position: fixed; height: 100vh; overflow-y: auto;
         }
         .sidebar h2 { font-size: 20px; margin-bottom: 30px; text-align: center; }
@@ -271,7 +271,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         @media (max-width: 768px) { .sidebar { transform: translateX(-100%); transition: transform 0.3s; } .sidebar.active { transform: translateX(0); } .main-content { margin-left: 0; } }
     </style>
 </head>
-<body>
+<body class="dashboard-page">
 <div class="container">
     <div class="sidebar">
         <h2><i class="fas fa-school"></i> SMS Admin</h2>
