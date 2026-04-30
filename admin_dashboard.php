@@ -723,5 +723,6 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     applyTheme(localStorage.getItem('theme') || 'light');
     showSection(localStorage.getItem('adminSection') || '<?php echo $restore_section; ?>');
 </script>
+<?php include 'footer.php'; ?>
 </body>
 </html>
