@@ -8,4 +8,3 @@ if (isLoggedIn()) {
 
 session_destroy();
 redirect('index.php');
-?>
