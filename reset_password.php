@@ -116,5 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
         </script>
     <?php endif; ?>
 </div>
+<?php include 'footer.php'; ?>
 </body>
 </html>
