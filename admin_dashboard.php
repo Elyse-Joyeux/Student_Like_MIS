@@ -104,7 +104,7 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
             width: 260px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px 20px;
+            padding: 30px 20px 100px 20px;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
@@ -304,8 +304,15 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
             <a href="#" onclick="showSection('results')"><i class="fas fa-chart-line"></i> Manage Results</a>
             <a href="#" onclick="showSection('announcements')"><i class="fas fa-bullhorn"></i> Announcements</a>
             <a href="#" onclick="showSection('logs')"><i class="fas fa-history"></i> System Logs</a>
-            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
+        <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
+            <button onclick="toggleTheme()" id="themeToggle" style="width:100%; padding:11px 15px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:10px; color:white; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                <i class="fas fa-moon" id="themeIcon"></i> <span id="themeLabel">Toggle Theme</span>
+            </button>
+            <a href="logout.php" style="display:block; margin-top:8px; padding:11px 15px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:rgba(255,255,255,0.85); text-decoration:none; font-size:14px; text-align:left; transition:all 0.2s;">
+                <i class="fas fa-sign-out-alt" style="margin-right:10px; width:16px;"></i> Logout
+            </a>
+        </div>
     </div>
     
     <div class="main-content">
@@ -506,8 +513,6 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
     </div>
 </div>
 
-<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-
 <script>
     function showSection(section) {
         // Hide all sections
@@ -541,15 +546,16 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
     }
 
     function applyTheme(theme) {
-        const icon = document.querySelector('#themeToggle i');
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
         if (theme === 'dark') {
             document.body.classList.add('dark');
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
+            if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+            if (label) label.textContent = 'Light Mode';
         } else {
             document.body.classList.remove('dark');
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
+            if (icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+            if (label) label.textContent = 'Dark Mode';
         }
     }
 
