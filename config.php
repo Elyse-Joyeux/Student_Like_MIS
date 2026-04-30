@@ -72,7 +72,7 @@ $create_announcements = "CREATE TABLE IF NOT EXISTS announcements (
 )";
 mysqli_query($conn, $create_announcements);
 
-// ── NEW: Mark appeal/claim table ─────────────────────────────────────────────
+//  NEW: Mark appeal/claim table 
 $create_appeals = "CREATE TABLE IF NOT EXISTS appeals (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
@@ -87,7 +87,7 @@ $create_appeals = "CREATE TABLE IF NOT EXISTS appeals (
 )";
 mysqli_query($conn, $create_appeals);
 
-// ── NEW: In-system notifications for students ────────────────────────────────
+//  NEW: In-system notifications for students 
 $create_notifications = "CREATE TABLE IF NOT EXISTS notifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -98,7 +98,7 @@ $create_notifications = "CREATE TABLE IF NOT EXISTS notifications (
 )";
 mysqli_query($conn, $create_notifications);
 
-// ── NEW: Report cards uploaded by admin ─────────────────────────────────────
+//  NEW: Report cards uploaded by admin ─
 $create_report_cards = "CREATE TABLE IF NOT EXISTS report_cards (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
