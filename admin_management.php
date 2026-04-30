@@ -335,7 +335,7 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
         }
     </style>
 </head>
-<body>
+<body class="auth-page">
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-shield-alt"></i> Admin Management</h1>
@@ -474,5 +474,6 @@ while ($admin = mysqli_fetch_assoc($admin_query)) {
             </ul>
         </div>
     </div>
+    <?php include 'footer.php'; ?>
 </body>
 </html>
