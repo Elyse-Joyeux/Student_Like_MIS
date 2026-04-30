@@ -72,6 +72,46 @@ $create_announcements = "CREATE TABLE IF NOT EXISTS announcements (
 )";
 mysqli_query($conn, $create_announcements);
 
+// ── NEW: Mark appeal/claim table ─────────────────────────────────────────────
+$create_appeals = "CREATE TABLE IF NOT EXISTS appeals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    result_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    status ENUM('pending','approved','rejected') DEFAULT 'pending',
+    admin_note TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (result_id) REFERENCES results(id) ON DELETE CASCADE
+)";
+mysqli_query($conn, $create_appeals);
+
+// ── NEW: In-system notifications for students ────────────────────────────────
+$create_notifications = "CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+mysqli_query($conn, $create_notifications);
+
+// ── NEW: Report cards uploaded by admin ─────────────────────────────────────
+$create_report_cards = "CREATE TABLE IF NOT EXISTS report_cards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    uploaded_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by) REFERENCES users(id)
+)";
+mysqli_query($conn, $create_report_cards);
+
 // Create default admin if not exists
 $check_admin = mysqli_query($conn, "SELECT id FROM users WHERE username = 'admin'");
 if (mysqli_num_rows($check_admin) == 0) {
@@ -89,6 +129,19 @@ function logAction($user_id, $action, $details) {
     $stmt = mysqli_prepare($conn, "INSERT INTO logs (user_id, action, details, ip_address) VALUES (?, ?, ?, ?)");
     mysqli_stmt_bind_param($stmt, "isss", $user_id, $action, $details, $ip);
     mysqli_stmt_execute($stmt);
+}
+
+function addNotification($user_id, $message) {
+    global $conn;
+    $stmt = mysqli_prepare($conn, "INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+    mysqli_stmt_bind_param($stmt, "is", $user_id, $message);
+    mysqli_stmt_execute($stmt);
+}
+
+function countUnreadNotifications($user_id) {
+    global $conn;
+    $res = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM notifications WHERE user_id=$user_id AND is_read=0"));
+    return $res['c'];
 }
 
 function isLoggedIn() {
