@@ -176,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </style>
 </head>
-<body>
+<body class="auth-page">
 <button class="theme-toggle" onclick="toggleTheme()">
     <i class="fas fa-moon"></i>
 </button>
