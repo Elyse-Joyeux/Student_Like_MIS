@@ -87,12 +87,12 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
         }
         
         body.dark {
-            --bg-primary: #1a202c;
-            --bg-secondary: #0f1419;
-            --text-primary: #f7fafc;
-            --text-secondary: #a0aec0;
-            --border: #4a5568;
-            --card-bg: #2d3748;
+            --bg-primary: #1e2533;
+            --bg-secondary: #141820;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: #374151;
+            --card-bg: #252d3d;
         }
         
         .container {
@@ -119,15 +119,20 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
         .sidebar nav a {
             display: block;
             padding: 12px 15px;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255,255,255,0.8);
             text-decoration: none;
             border-radius: 10px;
             margin-bottom: 8px;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            font-size: 14px;
         }
-        
-        .sidebar nav a:hover, .sidebar nav a.active {
-            background: rgba(255,255,255,0.2);
+        .sidebar nav a i { margin-right: 10px; width: 16px; }
+        .sidebar nav a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .sidebar nav a.active {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
         .main-content {
@@ -229,7 +234,10 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
+            border: 1px solid var(--border);
         }
+        .modal-content h3 { color: var(--text-primary); margin-bottom: 20px; }
+        .modal-content label { color: var(--text-secondary); font-size: 14px; display: block; margin-bottom: 6px; }
         
         .form-group {
             margin-bottom: 15px;
@@ -249,14 +257,20 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
             bottom: 20px;
             right: 20px;
             background: var(--card-bg);
-            border: none;
+            border: 1px solid var(--border);
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            width: 48px;
+            height: 48px;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
             z-index: 100;
+            font-size: 18px;
+            color: var(--text-primary);
+            transition: all 0.2s;
         }
+        .theme-toggle:hover { transform: scale(1.1); }
+        table th { color: var(--text-secondary); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        table td { color: var(--text-primary); }
         
         .alert {
             padding: 12px;
@@ -492,27 +506,32 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
     </div>
 </div>
 
-<button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
 
 <script>
     function showSection(section) {
-        document.getElementById('dashboard-section').style.display = 'none';
-        document.getElementById('users-section').style.display = 'none';
-        document.getElementById('results-section').style.display = 'none';
-        document.getElementById('announcements-section').style.display = 'none';
-        document.getElementById('logs-section').style.display = 'none';
-        
+        // Hide all sections
+        ['dashboard','users','results','announcements','logs'].forEach(s => {
+            document.getElementById(s + '-section').style.display = 'none';
+        });
         document.getElementById(section + '-section').style.display = 'block';
+
+        // Update active nav link
+        document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+        const clicked = document.querySelector(`.sidebar nav a[onclick="showSection('${section}')"]`);
+        if (clicked) clicked.classList.add('active');
+
+        localStorage.setItem('adminActiveSection', section);
     }
-    
+
     function openModal(modalId) {
         document.getElementById(modalId).style.display = 'flex';
     }
-    
+
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
     }
-    
+
     function editUser(id, name, email, role) {
         document.getElementById('edit_user_id').value = id;
         document.getElementById('edit_full_name').value = name;
@@ -520,18 +539,32 @@ $announcements = mysqli_query($conn, "SELECT a.*, u.full_name FROM announcements
         document.getElementById('edit_role').value = role;
         openModal('editUserModal');
     }
-    
+
+    function applyTheme(theme) {
+        const icon = document.querySelector('#themeToggle i');
+        if (theme === 'dark') {
+            document.body.classList.add('dark');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        } else {
+            document.body.classList.remove('dark');
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+    }
+
     function toggleTheme() {
-        document.body.classList.toggle('dark');
-        const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+        const isDark = document.body.classList.contains('dark');
+        const theme = isDark ? 'light' : 'dark';
         localStorage.setItem('theme', theme);
+        applyTheme(theme);
         fetch('save_theme.php?theme=' + theme);
     }
-    
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark');
-    }
-    
+
+    // Restore theme and section on load
+    applyTheme(localStorage.getItem('theme') || 'light');
+    showSection(localStorage.getItem('adminActiveSection') || 'dashboard');
+
     window.onclick = function(event) {
         if (event.target.classList.contains('modal')) {
             event.target.style.display = 'none';
