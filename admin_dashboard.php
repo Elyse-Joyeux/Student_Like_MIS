@@ -283,6 +283,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             <a href="#" onclick="showSection('report_cards')"><i class="fas fa-file-alt"></i> Report Cards</a>
             <a href="#" onclick="showSection('announcements')"><i class="fas fa-bullhorn"></i> Announcements</a>
             <a href="#" onclick="showSection('logs')"><i class="fas fa-history"></i> System Logs</a>
+            <a href="admin_management.php" style="border-top:1px solid rgba(255,255,255,0.15); margin-top:10px; padding-top:10px;"><i class="fas fa-shield-alt"></i> Admin Management</a>
         </nav>
         <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
             <button onclick="toggleTheme()" style="width:100%; padding:11px 15px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:10px; color:white; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:10px;">
