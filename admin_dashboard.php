@@ -6,7 +6,7 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect('index.php');
 }
 
-// ── Handle all POST actions ──────────────────────────────────────────────────
+//  Handle all POST actions 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Add user (admin sets username + email, student owns email — can't be changed by admin later)
@@ -167,7 +167,7 @@ if (isset($_GET['mark_admin_read'])) {
     redirect('admin_dashboard.php?section=notifications');
 }
 
-// ── Statistics ───────────────────────────────────────────────────────────────
+//  Statistics ─
 $total_students  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM users WHERE role='student'"))['c'];
 $total_results   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM results"))['c'];
 $pending_appeals = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM appeals WHERE status='pending'"))['c'];
@@ -304,7 +304,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($_GET['error']); ?></div>
         <?php endif; ?>
 
-        <!-- ── Dashboard ──────────────────────────────────────── -->
+        <!--  Dashboard  -->
         <div id="dashboard-section" style="display:none;">
             <h1 style="margin-bottom:25px;">Welcome, <?php echo htmlspecialchars($_SESSION['full_name']); ?>!</h1>
             <div class="stats-grid">
@@ -325,7 +325,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Users ──────────────────────────────────────────── -->
+        <!--  Users  -->
         <div id="users-section" style="display:none;">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -362,7 +362,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Results ────────────────────────────────────────── -->
+        <!--  Results  -->
         <div id="results-section" style="display:none;">
             <div class="card">
                 <h3>Add Result</h3>
@@ -409,7 +409,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Appeals ────────────────────────────────────────── -->
+        <!--  Appeals  -->
         <div id="appeals-section" style="display:none;">
             <div class="card">
                 <h3>Mark Appeals / Claims</h3>
@@ -452,7 +452,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Report Cards ───────────────────────────────────── -->
+        <!--  Report Cards ─ -->
         <div id="report_cards-section" style="display:none;">
             <div class="card">
                 <h3>Upload Report Card</h3>
@@ -500,7 +500,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Announcements ──────────────────────────────────── -->
+        <!--  Announcements  -->
         <div id="announcements-section" style="display:none;">
             <div class="card">
                 <h3>Post Announcement</h3>
@@ -512,7 +512,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Logs ───────────────────────────────────────────── -->
+        <!--  Logs ─ -->
         <div id="logs-section" style="display:none;">
             <div class="card">
                 <h3>System Activity Logs</h3>
@@ -535,7 +535,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
 
-        <!-- ── Notifications ─────────────────────────────────────── -->
+        <!--  Notifications ─ -->
         <div id="notifications-section" style="display:none;">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -557,7 +557,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
             </div>
         </div>
     </div>
-</div> ────────────────────────────────────────────────────────────── -->
+</div>  -->
 
 <!-- Add User -->
 <div id="addUserModal" class="modal">
