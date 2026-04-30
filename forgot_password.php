@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
     </style>
 </head>
-<body>
+<body class="auth-page">
 <div class="container">
     <div class="logo"><i class="fas fa-key"></i></div>
     <h2>Forgot your password?</h2>
