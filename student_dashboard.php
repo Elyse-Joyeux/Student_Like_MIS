@@ -32,13 +32,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
     $current = $_POST['current_password'];
     $new = $_POST['new_password'];
+    $confirm = $_POST['confirm_password'] ?? '';
     $user = mysqli_fetch_assoc(mysqli_query($conn, "SELECT password FROM users WHERE id=$user_id"));
-    if (password_verify($current, $user['password'])) {
+    if (!password_verify($current, $user['password'])) {
+        $error = "Current password is incorrect";
+    } elseif (strlen($new) < 6) {
+        $error = "New password must be at least 6 characters";
+    } elseif ($new !== $confirm) {
+        $error = "New passwords do not match";
+    } else {
         $new_hash = password_hash($new, PASSWORD_DEFAULT);
         mysqli_query($conn, "UPDATE users SET password='$new_hash' WHERE id=$user_id");
         redirect('student_dashboard.php?msg=Password changed successfully');
-    } else {
-        $error = "Current password is incorrect";
     }
 }
 
@@ -89,9 +94,11 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
             width: 260px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px 20px;
+            padding: 30px 20px 100px 20px;
             position: fixed;
             height: 100vh;
+            overflow-y: auto;
+            position: fixed;
         }
         .sidebar h2 { font-size: 20px; margin-bottom: 30px; text-align: center; }
         .sidebar nav a {
@@ -204,6 +211,19 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
         .grade-B { color: #4299e1; font-weight: bold; }
         .grade-C { color: #ed8936; font-weight: bold; }
         .grade-D { color: #e53e3e; font-weight: bold; }
+        .pw-wrap { position: relative; }
+        .pw-wrap input { padding-right: 42px; }
+        .pw-eye {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; color: var(--text-secondary); font-size: 15px; user-select: none;
+        }
+        .pw-eye:hover { color: #667eea; }
+        .info-notice {
+            background: #ebf4ff; border: 1px solid #bee3f8; color: #2b6cb0;
+            border-radius: 10px; padding: 12px 16px; font-size: 13px; margin-top: 12px;
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        body.dark .info-notice { background: #1a2a3a; border-color: #2b4c6f; color: #90cdf4; }
         .alert {
             padding: 12px 16px;
             border-radius: 10px;
@@ -235,8 +255,15 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
             <a href="#" onclick="showSection('profile')"><i class="fas fa-user"></i> My Profile</a>
             <a href="#" onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</a>
             <a href="#" onclick="showSection('logs')"><i class="fas fa-history"></i> My Logs</a>
-            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
+        <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
+            <button onclick="toggleTheme()" id="themeToggle" style="width:100%; padding:11px 15px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:10px; color:white; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:10px; transition:all 0.2s;">
+                <i class="fas fa-moon" id="themeIcon"></i> <span id="themeLabel">Toggle Theme</span>
+            </button>
+            <a href="logout.php" style="display:block; margin-top:8px; padding:11px 15px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:rgba(255,255,255,0.85); text-decoration:none; font-size:14px; text-align:left; transition:all 0.2s;">
+                <i class="fas fa-sign-out-alt" style="margin-right:10px; width:16px;"></i> Logout
+            </a>
+        </div>
     </div>
     
     <div class="main-content">
@@ -372,13 +399,27 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
                 <form method="POST">
                     <div class="form-group">
                         <label>Current Password</label>
-                        <input type="password" name="current_password" required>
+                        <div class="pw-wrap">
+                            <input type="password" name="current_password" id="cur_pw" required placeholder="Enter current password">
+                            <span class="pw-eye" onclick="togglePw('cur_pw', this)"><i class="fas fa-eye"></i></span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>New Password</label>
-                        <input type="password" name="new_password" required>
+                        <div class="pw-wrap">
+                            <input type="password" name="new_password" id="new_pw" required placeholder="Enter new password">
+                            <span class="pw-eye" onclick="togglePw('new_pw', this)"><i class="fas fa-eye"></i></span>
+                        </div>
                     </div>
-                    <button type="submit" name="change_password" class="btn btn-primary">Change Password</button>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" name="confirm_password" id="confirm_pw" required placeholder="Repeat new password">
+                            <span class="pw-eye" onclick="togglePw('confirm_pw', this)"><i class="fas fa-eye"></i></span>
+                        </div>
+                        <small id="pw-match-msg" style="font-size:12px; margin-top:5px; display:block;"></small>
+                    </div>
+                    <button type="submit" name="change_password" class="btn btn-primary" onclick="return checkPwMatch()">Change Password</button>
                 </form>
             </div>
         </div>
@@ -390,10 +431,14 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
                 <form method="POST">
                     <div class="form-group">
                         <label>Theme Preference</label>
-                        <select name="theme">
-                            <option value="light" <?php echo ($settings['theme'] == 'light') ? 'selected' : ''; ?>>Light Mode</option>
-                            <option value="dark" <?php echo ($settings['theme'] == 'dark') ? 'selected' : ''; ?>>Dark Mode</option>
+                        <select name="theme" id="themeSelect" onchange="showThemeNotice(this)">
+                            <option value="light" <?php echo ($settings['theme'] == 'light') ? 'selected' : ''; ?>>☀️ Light Mode</option>
+                            <option value="dark" <?php echo ($settings['theme'] == 'dark') ? 'selected' : ''; ?>>🌙 Dark Mode</option>
                         </select>
+                        <div class="info-notice" id="themeNotice" style="display:none;">
+                            <i class="fas fa-info-circle" style="margin-top:2px; flex-shrink:0;"></i>
+                            <span>Your theme preference has been changed. This setting will be applied the next time you log in. You can still toggle the theme right now using the button in the sidebar.</span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>
@@ -428,8 +473,6 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
     </div>
 </div>
 
-<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-
 <script>
     function showSection(section) {
         // Hide all sections
@@ -449,15 +492,16 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
     }
 
     function applyTheme(theme) {
-        const icon = document.querySelector('#themeToggle i');
+        const icon = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
         if (theme === 'dark') {
             document.body.classList.add('dark');
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
+            if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+            if (label) label.textContent = 'Light Mode';
         } else {
             document.body.classList.remove('dark');
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
+            if (icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+            if (label) label.textContent = 'Dark Mode';
         }
     }
 
@@ -467,6 +511,50 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
         localStorage.setItem('theme', theme);
         applyTheme(theme);
         fetch('save_theme.php?theme=' + theme);
+    }
+
+    function togglePw(fieldId, el) {
+        const input = document.getElementById(fieldId);
+        const icon = el.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    function checkPwMatch() {
+        const np = document.getElementById('new_pw');
+        const cp = document.getElementById('confirm_pw');
+        if (np && cp && np.value !== cp.value) {
+            document.getElementById('pw-match-msg').style.color = '#c53030';
+            document.getElementById('pw-match-msg').textContent = '✗ Passwords do not match';
+            return false;
+        }
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmPw = document.getElementById('confirm_pw');
+        const newPw = document.getElementById('new_pw');
+        if (confirmPw && newPw) {
+            confirmPw.addEventListener('input', function() {
+                const msg = document.getElementById('pw-match-msg');
+                if (this.value === newPw.value) {
+                    msg.style.color = '#276749'; msg.textContent = '✓ Passwords match';
+                } else {
+                    msg.style.color = '#c53030'; msg.textContent = '✗ Passwords do not match';
+                }
+            });
+        }
+    });
+
+    function showThemeNotice(select) {
+        const saved = '<?php echo $settings["theme"] ?? "light"; ?>';
+        const notice = document.getElementById('themeNotice');
+        notice.style.display = (select.value !== saved) ? 'flex' : 'none';
     }
 
     // On page load: restore theme and active section
