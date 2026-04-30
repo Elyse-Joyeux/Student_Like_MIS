@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Student Management System - Login/Homepage
- * 
- * Author: Elyse Joyeux
- * Version: 1.0.0
- * © 2026 Elyse Joyeux. All rights reserved.
- */
 
 require_once 'config.php';
 
