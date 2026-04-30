@@ -131,7 +131,8 @@ mysqli_query($conn, $create_report_cards);
  */
 
 // Helper functions
-function logAction($user_id, $action, $details) {
+function logAction($user_id, $action, $details)
+{
     global $conn;
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $stmt = mysqli_prepare($conn, "INSERT INTO logs (user_id, action, details, ip_address) VALUES (?, ?, ?, ?)");
@@ -139,35 +140,40 @@ function logAction($user_id, $action, $details) {
     mysqli_stmt_execute($stmt);
 }
 
-function addNotification($user_id, $message) {
+function addNotification($user_id, $message)
+{
     global $conn;
     $stmt = mysqli_prepare($conn, "INSERT INTO notifications (user_id, message) VALUES (?, ?)");
     mysqli_stmt_bind_param($stmt, "is", $user_id, $message);
     mysqli_stmt_execute($stmt);
 }
 
-function countUnreadNotifications($user_id) {
+function countUnreadNotifications($user_id)
+{
     global $conn;
     $res = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM notifications WHERE user_id=$user_id AND is_read=0"));
     return $res['c'];
 }
 
-function isLoggedIn() {
+function isLoggedIn()
+{
     return isset($_SESSION['user_id']);
 }
 
-function isAdmin() {
+function isAdmin()
+{
     return isset($_SESSION['role']) && $_SESSION['role'] == 'admin';
 }
 
-function adminExists() {
+function adminExists()
+{
     global $conn;
     $result = mysqli_query($conn, "SELECT id FROM users WHERE role='admin' LIMIT 1");
     return mysqli_num_rows($result) > 0;
 }
 
-function redirect($url) {
+function redirect($url)
+{
     header("Location: $url");
     exit();
 }
-?>
