@@ -8,7 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $raw_password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    if (strlen($raw_password) < 6) {
+    // Prevent students from registering with reserved "admin" username
+    if (strtolower(trim($username)) === 'admin') {
+        $error = "The username 'admin' is reserved and cannot be used.";
+    } elseif (strlen($raw_password) < 6) {
         $error = "Password must be at least 6 characters long.";
     } elseif ($raw_password !== $confirm_password) {
         $error = "Passwords do not match. Please try again.";
@@ -54,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             align-items: center;
             justify-content: center;
             padding: 20px;
+            padding-bottom: 140px;
         }
         
         :root {
