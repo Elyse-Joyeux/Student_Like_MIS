@@ -16,10 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         mysqli_query($conn, "UPDATE users SET reset_token = '$token', reset_expires = '$expires' WHERE id = {$user['id']}");
         
-        // In a real application, send email here
-        // For demo, we'll show the reset link
-        $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset_password.php?token=" . $token;
-        $message = "Password reset link: <a href='$reset_link'>$reset_link</a><br><small>(In production, this would be sent to your email)</small>";
+        // In production, send this link via email using PHPMailer or similar
+        $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset_password.php?token=" . urlencode($token);
+        $message = $reset_link;
     } else {
         $error = "Email not found in our system";
     }
@@ -122,10 +121,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <p style="color: #718096; margin-bottom: 20px;">Enter your email to receive a reset link</p>
     
     <?php if($message): ?>
-        <div class="alert alert-success"><?php echo $message; ?></div>
+        <div class="alert alert-success">
+            <p><strong><i class="fas fa-check-circle"></i> Reset link generated!</strong></p>
+            <p style="margin: 8px 0; font-size: 13px; color: #276749;">In production this would be emailed. For now, copy the link below:</p>
+            <div style="background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 8px; padding: 10px; margin-top: 10px; word-break: break-all; font-size: 12px;">
+                <a href="<?php echo htmlspecialchars($message); ?>" style="color: #276749;"><?php echo htmlspecialchars($message); ?></a>
+            </div>
+            <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($message); ?>'); this.textContent='Copied!';"
+                style="margin-top: 10px; padding: 6px 14px; background: #276749; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">
+                <i class="fas fa-copy"></i> Copy Link
+            </button>
+        </div>
     <?php endif; ?>
     <?php if($error): ?>
-        <div class="alert alert-error"><?php echo $error; ?></div>
+        <div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
     
     <form method="POST">
