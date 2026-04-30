@@ -1,19 +1,4 @@
 <?php
-/**
- * mailer.php — Central SMTP mailer using PHPMailer
- *
- * HOW TO INSTALL PHPMAILER:
- *   Run this once in your project root:
- *   composer require phpmailer/phpmailer
- *
- * Then fill in your SMTP credentials below.
- *
- * FREE OPTIONS:
- *  - Gmail:      host=smtp.gmail.com, port=587, user=you@gmail.com, pass=App Password
- *  - Outlook:    host=smtp.office365.com, port=587
- *  - SendGrid:   host=smtp.sendgrid.net, port=587, user=apikey, pass=YOUR_API_KEY
- *  - Mailtrap:   host=sandbox.smtp.mailtrap.io (for testing only, never reaches real inboxes)
- */
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -21,27 +6,17 @@ use PHPMailer\PHPMailer\Exception;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-// ═══════════════════════════════════════════════════════
-//  ★ CONFIGURE YOUR SMTP CREDENTIALS HERE ★
-// ═══════════════════════════════════════════════════════
-define('SMTP_HOST',     'smtp.gmail.com');        // e.g. smtp.gmail.com / smtp.office365.com
+//   CONFIGURE YOUR SMTP CREDENTIALS HERE 
+define('SMTP_HOST',     'smtp.gmail.com');        // e.g. smtp.gmail.com 
 define('SMTP_PORT',     587);                     // 587 for TLS, 465 for SSL
 define('SMTP_SECURE',   PHPMailer::ENCRYPTION_STARTTLS); // or ENCRYPTION_SMTPS for port 465
 define('SMTP_USER',     'schoollyse12@gmail.com');  // ← your sending email address
-define('SMTP_PASS',     'psjs jonh mmoc boen');     // ← Gmail App Password (NOT your Gmail login password)
+define('SMTP_PASS',     'psjs jonh mmoc boen');     // ← Gmail App Password (App password in manage google account)
 define('SMTP_FROM',     'schoollyse12@gmail.com');  // ← must match SMTP_USER for Gmail
 define('SMTP_FROM_NAME','Student Management System');
-// ═══════════════════════════════════════════════════════
+// 
 
-/**
- * sendMail($to, $subject, $htmlBody, $plainBody = '')
- *
- * Returns true on success, or an error string on failure.
- *
- * Usage:
- *   $result = sendMail('student@example.com', 'Hello', '<b>Hello!</b>', 'Hello!');
- *   if ($result !== true) { /* log the error *\/ }
- */
+
 function sendMail(string $to, string $subject, string $htmlBody, string $plainBody = ''): bool|string {
     $mail = new PHPMailer(true);
     try {
