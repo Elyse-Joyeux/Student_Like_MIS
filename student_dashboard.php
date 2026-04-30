@@ -76,12 +76,13 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
             --card-bg: #ffffff;
         }
         body.dark {
-            --bg-primary: #1a202c;
-            --bg-secondary: #0f1419;
-            --text-primary: #f7fafc;
-            --text-secondary: #a0aec0;
-            --border: #4a5568;
-            --card-bg: #2d3748;
+            --bg-primary: #1e2533;
+            --bg-secondary: #141820;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: #374151;
+            --card-bg: #252d3d;
+            --input-bg: #1e2533;
         }
         .container { display: flex; min-height: 100vh; }
         .sidebar {
@@ -96,12 +97,21 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
         .sidebar nav a {
             display: block;
             padding: 12px 15px;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255,255,255,0.8);
             text-decoration: none;
             border-radius: 10px;
             margin-bottom: 8px;
+            transition: all 0.2s ease;
+            font-size: 14px;
         }
-        .sidebar nav a:hover, .sidebar nav a.active { background: rgba(255,255,255,0.2); }
+        .sidebar nav a i { margin-right: 10px; width: 16px; }
+        .sidebar nav a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .sidebar nav a.active {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
         .main-content {
             flex: 1;
             margin-left: 260px;
@@ -119,7 +129,34 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
             font-size: 18px;
             border-left: 4px solid #667eea;
             padding-left: 15px;
+            color: var(--text-primary);
         }
+        table th {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        table td { color: var(--text-primary); }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 18px;
+            color: var(--text-primary);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { transform: scale(1.1); }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -167,28 +204,18 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
         .grade-B { color: #4299e1; font-weight: bold; }
         .grade-C { color: #ed8936; font-weight: bold; }
         .grade-D { color: #e53e3e; font-weight: bold; }
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            z-index: 100;
-        }
         .alert {
-            padding: 12px;
+            padding: 12px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
             background: #c6f6d5;
             color: #276749;
+            border: 1px solid #9ae6b4;
         }
         .alert-error {
             background: #fed7d7;
             color: #c53030;
+            border: 1px solid #fc8181;
         }
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
@@ -401,27 +428,53 @@ $logs = mysqli_query($conn, "SELECT * FROM logs WHERE user_id=$user_id ORDER BY 
     </div>
 </div>
 
-<button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
 
 <script>
     function showSection(section) {
+        // Hide all sections
         const sections = ['dashboard', 'results', 'announcements', 'profile', 'settings', 'logs'];
         sections.forEach(s => {
             document.getElementById(s + '-section').style.display = 'none';
         });
         document.getElementById(section + '-section').style.display = 'block';
+
+        // Update active nav link
+        document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+        const clicked = document.querySelector(`.sidebar nav a[onclick="showSection('${section}')"]`);
+        if (clicked) clicked.classList.add('active');
+
+        // Remember the active section
+        localStorage.setItem('activeSection', section);
     }
-    
+
+    function applyTheme(theme) {
+        const icon = document.querySelector('#themeToggle i');
+        if (theme === 'dark') {
+            document.body.classList.add('dark');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        } else {
+            document.body.classList.remove('dark');
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+    }
+
     function toggleTheme() {
-        document.body.classList.toggle('dark');
-        const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+        const isDark = document.body.classList.contains('dark');
+        const theme = isDark ? 'light' : 'dark';
         localStorage.setItem('theme', theme);
+        applyTheme(theme);
         fetch('save_theme.php?theme=' + theme);
     }
-    
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark');
-    }
+
+    // On page load: restore theme and active section
+    const savedTheme = localStorage.getItem('theme') || '<?php echo $settings["theme"] ?? "light"; ?>';
+    applyTheme(savedTheme);
+
+    const savedSection = localStorage.getItem('activeSection') || 'dashboard';
+    showSection(savedSection);
 </script>
 </body>
 </html>
