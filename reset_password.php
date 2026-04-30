@@ -50,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['password'])) {
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+            padding-bottom: 140px;
         }
         .reset-container {
             background: white;
