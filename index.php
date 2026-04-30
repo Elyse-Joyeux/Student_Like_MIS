@@ -192,7 +192,7 @@ if (isLoggedIn()) {
         .pw-eye:hover { color: #667eea; }
     </style>
 </head>
-<body>
+<body class="auth-page">
 <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
     <i class="fas fa-moon"></i>
 </button>
