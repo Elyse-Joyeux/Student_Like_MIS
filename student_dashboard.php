@@ -10,6 +10,10 @@ $user_id = $_SESSION['user_id'];
 
 // Get user settings
 $settings = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM user_settings WHERE user_id = $user_id"));
+if (!$settings) {
+    mysqli_query($conn, "INSERT INTO user_settings (user_id) VALUES ($user_id)");
+    $settings = ['theme' => 'light', 'notifications' => 1];
+}
 
 // Update settings
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_settings'])) {
@@ -129,16 +133,17 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.3s; }
+        html { overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-secondary); color: var(--text-primary); transition: all 0.3s; overflow-x: hidden; }
         :root {
-            --bg-primary: #ffffff; --bg-secondary: #f7f9fc;
-            --text-primary: #2d3748; --text-secondary: #718096;
-            --border: #e2e8f0; --card-bg: #ffffff; --input-bg: #ffffff;
+            --bg-primary: #ffffff; --bg-secondary: #f5f7fb;
+            --text-primary: #1f2937; --text-secondary: #64748b;
+            --border: #e2e8f0; --card-bg: #ffffff; --input-bg: #ffffff; --accent: #4f46e5;
         }
         body.dark {
             --bg-primary: #1e2533; --bg-secondary: #141820;
             --text-primary: #e2e8f0; --text-secondary: #94a3b8;
-            --border: #374151; --card-bg: #252d3d; --input-bg: #1e2533;
+            --border: #374151; --card-bg: #252d3d; --input-bg: #1e2533; --accent: #818cf8;
         }
         .container { display: flex; min-height: 100vh; }
         .sidebar {
@@ -156,17 +161,18 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         .sidebar nav a:hover { background: rgba(255,255,255,0.15); color: white; }
         .sidebar nav a.active { background: rgba(255,255,255,0.25); color: white; font-weight: 600; }
         .badge-pill { display: inline-block; background: #e53e3e; color: white; border-radius: 20px; padding: 1px 8px; font-size: 11px; margin-left: 6px; }
-        .main-content { flex: 1; margin-left: 260px; padding: 30px; padding-bottom: 140px; }
-        .card { background: var(--card-bg); border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .card h3 { margin-bottom: 20px; font-size: 18px; border-left: 4px solid #667eea; padding-left: 15px; color: var(--text-primary); }
+        .main-content { flex: 1; min-width: 0; margin-left: 260px; padding: 30px; padding-bottom: 140px; }
+        .card { background: var(--card-bg); border-radius: 8px; padding: 25px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(15,23,42,0.06); overflow-x: auto; }
+        .card h3 { margin-bottom: 20px; font-size: 18px; border-left: 4px solid var(--accent); padding-left: 15px; color: var(--text-primary); }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 15px; }
-        table { width: 100%; border-collapse: collapse; }
+        .stat-card { background: linear-gradient(135deg, #4f46e5, #0f766e); color: white; padding: 20px; border-radius: 8px; }
+        table { width: 100%; min-width: 680px; border-collapse: collapse; }
         table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-        table th { color: var(--text-secondary); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        table th { color: var(--text-secondary); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0; background: var(--bg-secondary); }
         table td { color: var(--text-primary); font-size: 14px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
-        .btn-primary { background: #667eea; color: white; }
+        tbody tr:hover { background: rgba(79,70,229,0.04); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; min-height: 38px; white-space: nowrap; }
+        .btn-primary { background: var(--accent); color: white; }
         .btn-warning { background: #ed8936; color: white; }
         .btn-sm { padding: 6px 12px; font-size: 13px; }
         .form-group { margin-bottom: 15px; }
@@ -197,16 +203,85 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         .status-approved { background: #c6f6d5; color: #276749; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
         .status-rejected { background: #fed7d7; color: #c53030; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; border: 1px solid var(--border); }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
         .modal-content h3 { color: var(--text-primary); margin-bottom: 16px; }
         .theme-toggle { position: fixed; bottom: 20px; right: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 48px; height: 48px; cursor: pointer; z-index: 100; font-size: 18px; color: var(--text-primary); box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
-        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); transition: transform 0.3s; } .sidebar.active { transform: translateX(0); } .main-content { margin-left: 0; } }
+        
+        /* Mobile hamburger menu */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 999;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .mobile-menu-toggle:hover {
+            transform: scale(1.05);
+        }
+        
+        .mobile-sidebar-close {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) { 
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 998;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar.active .mobile-sidebar-close {
+                display: block;
+            }
+            
+            .main-content { 
+                margin-left: 0;
+                padding: 88px 16px 150px;
+                width: 100%;
+            }
+            .stats-grid { grid-template-columns: 1fr; gap: 14px; }
+            .card { padding: 18px; margin-bottom: 16px; }
+            .card h3 { font-size: 16px; }
+            table { min-width: 620px; }
+            .modal { align-items: flex-start; padding: 16px; overflow-y: auto; }
+            .modal-content { width: 100%; padding: 20px; margin-top: 48px; }
+            .theme-toggle { bottom: 118px; right: 16px; }
+        }
     </style>
 </head>
 <body class="dashboard-page">
 <div class="container">
     <div class="sidebar">
         <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+        <button class="mobile-sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
         <nav>
             <a href="#" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" onclick="showSection('results')"><i class="fas fa-chart-line"></i> My Results</a>
@@ -228,6 +303,7 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
     </div>
 
     <div class="main-content">
+        <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
         <?php if(isset($_GET['msg'])): ?>
             <div class="alert"><i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($_GET['msg']); ?></div>
         <?php endif; ?>
@@ -586,6 +662,24 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
 <script>
     const SECTIONS = ['dashboard','results','report_cards','notifications','announcements','profile','settings','logs'];
 
+    function toggleSidebar() {
+        document.querySelector('.sidebar')?.classList.toggle('active');
+    }
+
+    document.addEventListener('click', function(event) {
+        const sidebar = document.querySelector('.sidebar');
+        const toggleBtn = document.querySelector('.mobile-menu-toggle');
+        if (sidebar && toggleBtn && !sidebar.contains(event.target) && !toggleBtn.contains(event.target) && window.innerWidth <= 768) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            document.querySelector('.sidebar')?.classList.remove('active');
+        }
+    });
+
     function showSection(section) {
         SECTIONS.forEach(s => {
             const el = document.getElementById(s + '-section');
@@ -597,6 +691,9 @@ $restore_section = isset($_GET['section']) ? htmlspecialchars($_GET['section']) 
         const link = document.querySelector(`.sidebar nav a[onclick="showSection('${section}')"]`);
         if (link) link.classList.add('active');
         localStorage.setItem('studentSection', section);
+        if (window.innerWidth <= 768) {
+            document.querySelector('.sidebar')?.classList.remove('active');
+        }
 
         // Auto-mark notifications as read when section opened
         if (section === 'notifications') {
